@@ -1,4 +1,4 @@
-# Sur le VPS : /srv/heures-sup-gc/prod/docker-compose.yml (ce fichier) + .env à côté.
+# Sur le VPS : /opt/horairegc/docker-compose.yml (ce fichier) + .env à côté.
 # Le script deploy/installer-vps.sh met tout ça en place.
 #
 # .env attendu :

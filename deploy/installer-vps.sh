@@ -3,7 +3,7 @@
 #   curl -fsSL https://raw.githubusercontent.com/GCDeveloppement-code/HoraireGC/main/deploy/installer-vps.sh | sudo bash
 # ou, depuis un clone : sudo bash deploy/installer-vps.sh
 #
-# Ce que ça fait : installe Docker s'il manque, crée /srv/heures-sup-gc/prod avec le docker-compose.yml
+# Ce que ça fait : installe Docker s'il manque, crée /opt/horairegc avec le docker-compose.yml
 # et un .env aux secrets générés, crée un utilisateur `deploy` avec une clé SSH pour GitHub Actions,
 # et affiche ce qu'il reste à coller dans GitHub. Ça ne lance pas l'appli : c'est le premier push sur `main` qui le fait.
 set -euo pipefail
@@ -12,7 +12,7 @@ DOMAINE="${DOMAINE:-horaire.gcdeveloppement.fr}"
 REPO="${REPO:-GCDeveloppement-code/HoraireGC}"   # dépôt GitHub
 IMAGE_BASE="ghcr.io/$(echo "$REPO" | tr '[:upper:]' '[:lower:]')"
 OWNER="${REPO%%/*}"
-DIR=/srv/heures-sup-gc/prod
+DIR=/opt/horairegc
 DEPLOY_USER=deploy
 
 echo "› Docker"
@@ -55,7 +55,7 @@ SEED_AU_DEMARRAGE=1
 EOF
   chmod 600 "$DIR/.env"
 fi
-chown -R "$DEPLOY_USER:$DEPLOY_USER" /srv/heures-sup-gc
+chown -R "$DEPLOY_USER:$DEPLOY_USER" "$DIR"
 
 echo "› Accès à GHCR (images privées)"
 echo "  Si le dépôt GitHub est privé, connecte le VPS au registre une fois :"
@@ -63,7 +63,7 @@ echo "    sudo -u $DEPLOY_USER docker login ghcr.io -u $OWNER   (mot de passe : 
 
 PORT_80_LIBRE=1
 if ss -ltn 2>/dev/null | grep -qE ':(80|443)\s'; then PORT_80_LIBRE=0; fi
-SSH_PORT="$(grep -Ei '^\s*Port\s+[0-9]+' /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf 2>/dev/null | awk '{print $NF}' | tail -1)"
+SSH_PORT="$( { cat /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf 2>/dev/null || true; } | grep -Ei '^\s*Port\s+[0-9]+' | awk '{print $NF}' | tail -1 || true)"
 SSH_PORT="${SSH_PORT:-22}"
 
 cat <<EOF

@@ -2,8 +2,8 @@
 # 1. Construit l'image Docker et la pousse sur GHCR (ghcr.io/gcdeveloppement-code/horairegc:<branche>).
 # 2. Se connecte au VPS en SSH, récupère l'image et relance docker compose dans le dossier de l'environnement.
 #
-# Secrets du dépôt : VPS_HOST, VPS_USER, VPS_SSH_KEY (clé privée dédiée), VPS_PORT (facultatif, 22 par défaut).
-# Sur le VPS : deploy/installer-vps.sh prépare /srv/heures-sup-gc/prod (docker-compose.yml + .env).
+# Secrets du dépôt : VPS_HOST, VPS_USER, VPS_SSH_KEY (clé privée dédiée), VPS_PORT (715 chez GC ; 22 par défaut si absent).
+# Sur le VPS : /opt/horairegc (docker-compose.yml + .env), préparé par deploy/installer-vps.sh. Staging : /opt/horairegc-staging.
 name: Déploiement
 
 on:
@@ -60,7 +60,7 @@ jobs:
           port: ${{ secrets.VPS_PORT || 22 }}
           script: |
             set -e
-            cd "/srv/heures-sup-gc/${{ github.ref_name == 'main' && 'prod' || 'staging' }}"
+            cd "/opt/horairegc${{ github.ref_name == 'main' && '' || '-staging' }}"
             docker compose pull app
             docker compose up -d --remove-orphans
             docker image prune -f >/dev/null

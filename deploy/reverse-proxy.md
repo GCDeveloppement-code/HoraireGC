@@ -5,7 +5,7 @@ L'appli écoute sur `127.0.0.1:3010` (voir `PORT_LOCAL` dans le `.env` du VPS). 
 ## Rien sur les ports 80/443 : Caddy fourni
 
 ```bash
-cd /srv/heures-sup-gc/prod
+cd /opt/horairegc
 docker compose --profile caddy up -d
 ```
 
