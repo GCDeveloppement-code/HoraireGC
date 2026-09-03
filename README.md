@@ -44,11 +44,13 @@ public/manifest.webmanifest, public/sw.js, public/icons   PWA
 
 ## Git flow et déploiement
 
-Branches : `main` (prod), `develop` (staging), `feature/*` depuis `develop`, `hotfix/*` depuis `main`.
+Branches : `main` (prod, https://horaire.gcdeveloppement.fr), `develop` (intégration, staging optionnel), `feature/*` depuis `develop`, `hotfix/*` depuis `main`.
 
-À chaque push sur `develop` ou `main`, GitHub Actions construit l'image Docker, la pousse sur GHCR (`ghcr.io/<owner>/heures-sup-gc:<branche>`) puis se connecte au VPS en SSH et relance `docker compose` dans `/srv/heures-sup-gc/staging` ou `/srv/heures-sup-gc/prod`. Détails et prérequis dans `.github/workflows/deploy.yml` et `deploy/docker-compose.vps.yml`. Au démarrage, le conteneur applique les migrations (`prisma migrate deploy`) avant de lancer l'appli.
+À chaque push sur `main`, GitHub Actions construit l'image Docker, la pousse sur GHCR (`ghcr.io/<owner>/heures-sup-gc:main`) puis se connecte au VPS en SSH et relance `docker compose` dans `/srv/heures-sup-gc/prod`. Un push sur `develop` construit l'image et ne déploie que si la variable de dépôt `STAGING` vaut `true` (dossier `/srv/heures-sup-gc/staging`). Au démarrage, le conteneur applique les migrations (`prisma migrate deploy`) et, si `SEED_AU_DEMARRAGE=1`, crée les comptes de `prisma/equipe.json`.
 
-Secrets à créer dans le dépôt GitHub : `VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY` (et `VPS_PORT` si différent de 22).
+Mise en place du VPS en une fois : `deploy/installer-vps.sh` (Docker, utilisateur `deploy` + clé SSH, dossier prod, `.env` aux secrets générés). Exposition HTTPS : `deploy/reverse-proxy.md` (Caddy fourni si rien n'écoute sur 80/443, sinon Nginx ou Traefik).
+
+Secrets à créer dans le dépôt GitHub : `VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY` (et `VPS_PORT` si différent de 22). Ils sont affichés à la fin du script d'installation.
 
 ## À faire ensuite
 
