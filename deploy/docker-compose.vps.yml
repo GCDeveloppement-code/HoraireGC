@@ -1,15 +1,19 @@
-# Sur le VPS : un dossier par environnement, avec ce fichier renommé docker-compose.yml et un .env à côté.
-#   /srv/heures-sup-gc/staging   (branche develop, image :develop)
-#   /srv/heures-sup-gc/prod      (branche main,    image :main)
+# Sur le VPS : /srv/heures-sup-gc/prod/docker-compose.yml (ce fichier) + .env à côté.
+# Le script deploy/installer-vps.sh met tout ça en place.
 #
 # .env attendu :
-#   IMAGE=ghcr.io/quentindurant/heures-sup-gc:develop
+#   IMAGE=ghcr.io/quentindurant/heures-sup-gc:main
+#   DOMAINE=horaire.gcdeveloppement.fr
 #   PORT_LOCAL=3010
 #   POSTGRES_PASSWORD=un-mot-de-passe-solide
 #   AUTH_SECRET=une-longue-chaine-aleatoire
-#   APP_URL=https://heures-staging.exemple.fr
+#   APP_URL=https://horaire.gcdeveloppement.fr
 #   SEED_PASSWORD=mot-de-passe-provisoire-du-seed
-#   SEED_AU_DEMARRAGE=0
+#   SEED_AU_DEMARRAGE=1   (au premier démarrage seulement, puis 0)
+#
+# Deux façons d'exposer l'appli :
+#   - un reverse proxy déjà présent sur le VPS (Nginx, Traefik, Caddy) qui renvoie vers 127.0.0.1:PORT_LOCAL ;
+#   - rien sur les ports 80/443 : `docker compose --profile caddy up -d` ajoute Caddy, qui gère le HTTPS tout seul.
 services:
   db:
     image: postgres:16-alpine
@@ -38,9 +42,26 @@ services:
       APP_URL: ${APP_URL}
       SEED_PASSWORD: ${SEED_PASSWORD:-gc-2026}
       SEED_AU_DEMARRAGE: ${SEED_AU_DEMARRAGE:-0}
-    # Derrière un reverse proxy (Nginx, Caddy, Traefik) : n'exposer que sur localhost.
     ports:
       - "127.0.0.1:${PORT_LOCAL:-3010}:3000"
 
+  caddy:
+    profiles: ["caddy"]
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      - app
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAINE: ${DOMAINE}
+    command: caddy reverse-proxy --from ${DOMAINE} --to app:3000
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+
 volumes:
   pgdata:
+  caddy_data:
+  caddy_config:

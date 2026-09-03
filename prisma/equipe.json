@@ -1,18 +1,18 @@
 {
-  "_note": "Équipe GC Développement. Remplace les emails par les vrais avant de lancer le seed. Horaires par défaut 09:00 / 12:30 / 14:00 / 17:30, soldeInitial en minutes (repris de l'Excel).",
+  "_note": "Équipe GC Développement. Emails supposés en prenom@gcdeveloppement.fr : vérifie-les avant de lancer le seed. Horaires par défaut 09:00 / 12:30 / 14:00 / 17:30, soldeInitial en minutes (repris de l'Excel).",
   "membres": [
-    { "prenom": "Quentin", "email": "quentin@a-completer.fr", "equipe": "Chefs de projet", "poste": "Chef de projet", "role": "SALARIE", "soldeInitial": 0 },
-    { "prenom": "Korantin", "email": "korantin@a-completer.fr", "equipe": "Chefs de projet", "poste": "Chef de projet", "role": "SALARIE", "soldeInitial": 0 },
-    { "prenom": "Laurent", "email": "laurent@a-completer.fr", "equipe": "Chefs de projet", "poste": "Responsable technique", "role": "SALARIE", "soldeInitial": 0 },
-    { "prenom": "Adrien", "email": "adrien@a-completer.fr", "equipe": "Chefs de projet", "poste": "Chef de projet", "role": "SALARIE", "soldeInitial": 0 },
-    { "prenom": "Dylan", "email": "dylan@a-completer.fr", "equipe": "Support", "poste": "Support · chef de projet", "role": "SALARIE", "soldeInitial": 0 },
-    { "prenom": "Aurélien", "email": "aurelien@a-completer.fr", "equipe": "Support", "poste": "Support", "role": "SALARIE", "soldeInitial": 0 },
-    { "prenom": "Marie", "email": "marie@a-completer.fr", "equipe": "ADV", "poste": "Responsable ADV", "role": "SALARIE", "soldeInitial": 0 },
-    { "prenom": "Alex", "email": "alex@a-completer.fr", "equipe": "ADV", "poste": "ADV", "role": "SALARIE", "soldeInitial": 0 },
-    { "prenom": "Madison", "email": "madison@a-completer.fr", "equipe": "ADV", "poste": "ADV", "role": "SALARIE", "soldeInitial": 0 },
-    { "prenom": "Christelle", "email": "christelle@a-completer.fr", "equipe": "ADV", "poste": "ADV", "role": "SALARIE", "soldeInitial": 0 },
-    { "prenom": "Valentin", "email": "valentin@a-completer.fr", "equipe": "Staging", "poste": "Staging", "role": "SALARIE", "soldeInitial": 0 },
-    { "prenom": "Geoffroy", "email": "geoffroy@a-completer.fr", "equipe": "Direction", "poste": "Direction", "role": "RH", "soldeInitial": 0 },
-    { "prenom": "Lucie", "email": "lucie@a-completer.fr", "equipe": "Direction", "poste": "Direction · RH", "role": "RH", "soldeInitial": 0 }
+    { "prenom": "Quentin", "email": "quentin@gcdeveloppement.fr", "equipe": "Chefs de projet", "poste": "Chef de projet", "role": "SALARIE", "soldeInitial": 0 },
+    { "prenom": "Korantin", "email": "korantin@gcdeveloppement.fr", "equipe": "Chefs de projet", "poste": "Chef de projet", "role": "SALARIE", "soldeInitial": 0 },
+    { "prenom": "Laurent", "email": "laurent@gcdeveloppement.fr", "equipe": "Chefs de projet", "poste": "Responsable technique", "role": "SALARIE", "soldeInitial": 0 },
+    { "prenom": "Adrien", "email": "adrien@gcdeveloppement.fr", "equipe": "Chefs de projet", "poste": "Chef de projet", "role": "SALARIE", "soldeInitial": 0 },
+    { "prenom": "Dylan", "email": "dylan@gcdeveloppement.fr", "equipe": "Support", "poste": "Support · chef de projet", "role": "SALARIE", "soldeInitial": 0 },
+    { "prenom": "Aurélien", "email": "aurelien@gcdeveloppement.fr", "equipe": "Support", "poste": "Support", "role": "SALARIE", "soldeInitial": 0 },
+    { "prenom": "Marie", "email": "marie@gcdeveloppement.fr", "equipe": "ADV", "poste": "Responsable ADV", "role": "SALARIE", "soldeInitial": 0 },
+    { "prenom": "Alex", "email": "alex@gcdeveloppement.fr", "equipe": "ADV", "poste": "ADV", "role": "SALARIE", "soldeInitial": 0 },
+    { "prenom": "Madison", "email": "madison@gcdeveloppement.fr", "equipe": "ADV", "poste": "ADV", "role": "SALARIE", "soldeInitial": 0 },
+    { "prenom": "Christelle", "email": "christelle@gcdeveloppement.fr", "equipe": "ADV", "poste": "ADV", "role": "SALARIE", "soldeInitial": 0 },
+    { "prenom": "Valentin", "email": "valentin@gcdeveloppement.fr", "equipe": "Staging", "poste": "Staging", "role": "SALARIE", "soldeInitial": 0 },
+    { "prenom": "Geoffroy", "email": "geoffroy@gcdeveloppement.fr", "equipe": "Direction", "poste": "Direction", "role": "RH", "soldeInitial": 0 },
+    { "prenom": "Lucie", "email": "lucie@gcdeveloppement.fr", "equipe": "Direction", "poste": "Direction · RH", "role": "RH", "soldeInitial": 0 }
   ]
 }
