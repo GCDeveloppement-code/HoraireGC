@@ -55,3 +55,4 @@ Secrets à créer dans le dépôt GitHub : `VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY`
 ## À faire ensuite
 
 Rappels (récap du vendredi, rappel du soir) par notification push ou email, refacturation des débordements aux partenaires, suppression douce des déclarations avec historique.
+# HoraireGC
