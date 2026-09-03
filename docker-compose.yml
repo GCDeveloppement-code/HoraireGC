@@ -1,0 +1,18 @@
+# Développement local : uniquement la base de données.
+#   docker compose up -d
+#   DATABASE_URL="postgresql://hsgc:hsgc@localhost:5432/heures_sup?schema=public"
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: hsgc
+      POSTGRES_PASSWORD: hsgc
+      POSTGRES_DB: heures_sup
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

@@ -1,0 +1,46 @@
+# Sur le VPS : un dossier par environnement, avec ce fichier renommé docker-compose.yml et un .env à côté.
+#   /srv/heures-sup-gc/staging   (branche develop, image :develop)
+#   /srv/heures-sup-gc/prod      (branche main,    image :main)
+#
+# .env attendu :
+#   IMAGE=ghcr.io/quentindurant/heures-sup-gc:develop
+#   PORT_LOCAL=3010
+#   POSTGRES_PASSWORD=un-mot-de-passe-solide
+#   AUTH_SECRET=une-longue-chaine-aleatoire
+#   APP_URL=https://heures-staging.exemple.fr
+#   SEED_PASSWORD=mot-de-passe-provisoire-du-seed
+#   SEED_AU_DEMARRAGE=0
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: hsgc
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: heures_sup
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hsgc -d heures_sup"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  app:
+    image: ${IMAGE}
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://hsgc:${POSTGRES_PASSWORD}@db:5432/heures_sup?schema=public
+      AUTH_SECRET: ${AUTH_SECRET}
+      APP_URL: ${APP_URL}
+      SEED_PASSWORD: ${SEED_PASSWORD:-gc-2026}
+      SEED_AU_DEMARRAGE: ${SEED_AU_DEMARRAGE:-0}
+    # Derrière un reverse proxy (Nginx, Caddy, Traefik) : n'exposer que sur localhost.
+    ports:
+      - "127.0.0.1:${PORT_LOCAL:-3010}:3000"
+
+volumes:
+  pgdata:

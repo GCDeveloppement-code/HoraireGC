@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Heures Sup GC
 
-## Getting Started
+Le compteur d'heures sup de GC Développement. Une journée normale ne demande rien : on ne déclare que les écarts (retard le matin, midi écourté, soirée qui déborde), en un tap, et l'appli calcule le reste. La RH voit tout, demande des confirmations, clôture le mois et exporte pour la paie.
 
-First, run the development server:
+Stack : Next.js 15 (App Router, server actions), React 19, TypeScript, Tailwind 4, Prisma 7 + PostgreSQL, PWA installable.
+
+## Démarrer en local
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cp .env.example .env            # puis ajuste DATABASE_URL et AUTH_SECRET
+docker compose up -d            # PostgreSQL local (ou une base à toi)
+npm install                     # génère aussi le client Prisma
+npm run db:migrate:dev          # applique les migrations
+npm run db:seed                 # crée l'équipe de prisma/equipe.json (emails à compléter avant)
+npm run dev                     # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Mot de passe provisoire des comptes du seed : `SEED_PASSWORD` du `.env` (`gc-2026` par défaut). Chacun doit le changer à sa première connexion.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Scripts utiles : `npm test` (calculs), `npm run typecheck`, `npm run lint`, `npm run db:studio`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Comment ça marche
 
-## Learn More
+Chaque personne a des horaires de référence (par défaut 9h · 12h30 · 14h · 17h30, ajustables par la RH). Une déclaration, c'est un moment (matin, midi, soir) et une heure : l'écart par rapport à la référence est arrondi au quart d'heure, positif (heures sup) ou négatif (retard). Le gros bouton de l'écran d'accueil prend l'heure courante. Une déclaration faite un autre jour que le jour concerné est marquée « après coup ». Toute déclaration peut porter un motif, un client et une justification libre.
 
-To learn more about Next.js, take a look at the following resources:
+Les récups se posent en demi-journée ou journée (durées déduites des horaires de la personne). Le solde = solde de départ + heures sup (majorées si la RH l'a décidé) + retards + récups.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+L'écran salarié suit l'heure : Aube le matin, Ciel l'après-midi, Soir après 17h30. La vue RH (`/rh`) est la version claire : compteurs du mois, fiche par personne, demande de confirmation ligne par ligne, clôture du mois, export Excel (`/rh/export?mois=YYYY-MM`), règles (majoration, arrondi), horaires et comptes.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Organisation du code
 
-## Deploy on Vercel
+```
+prisma/schema.prisma        modèle (User, Declaration, Cloture, Parametres)
+prisma/migrations           migrations SQL
+prisma/seed.ts + equipe.json seed de l'équipe
+src/lib/calcul.ts           règles de calcul (pures, testées dans calcul.test.ts)
+src/lib/auth.ts             sessions (cookie JWT signé), utilisateurCourant / utilisateurRH
+src/actions/*.ts            server actions (auth, déclarations, RH)
+src/app/                    pages : /, /connexion, /reglages/mot-de-passe, /rh, /rh/personnes/[id], /rh/regles, /rh/export
+src/components/salarie      écran salarié (Accueil, feuilles, éléments)
+src/components/rh           composants de la vue RH
+public/manifest.webmanifest, public/sw.js, public/icons   PWA
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Git flow et déploiement
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Branches : `main` (prod), `develop` (staging), `feature/*` depuis `develop`, `hotfix/*` depuis `main`.
+
+À chaque push sur `develop` ou `main`, GitHub Actions construit l'image Docker, la pousse sur GHCR (`ghcr.io/<owner>/heures-sup-gc:<branche>`) puis se connecte au VPS en SSH et relance `docker compose` dans `/srv/heures-sup-gc/staging` ou `/srv/heures-sup-gc/prod`. Détails et prérequis dans `.github/workflows/deploy.yml` et `deploy/docker-compose.vps.yml`. Au démarrage, le conteneur applique les migrations (`prisma migrate deploy`) avant de lancer l'appli.
+
+Secrets à créer dans le dépôt GitHub : `VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY` (et `VPS_PORT` si différent de 22).
+
+## À faire ensuite
+
+Rappels (récap du vendredi, rappel du soir) par notification push ou email, refacturation des débordements aux partenaires, suppression douce des déclarations avec historique.

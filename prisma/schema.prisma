@@ -1,0 +1,96 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  SALARIE
+  RH
+}
+
+enum Moment {
+  MATIN
+  MIDI
+  SOIR
+  RECUP
+}
+
+enum Statut {
+  DECLAREE
+  A_CONFIRMER
+  CONFIRMEE
+}
+
+model User {
+  id                 String        @id @default(cuid())
+  email              String        @unique
+  passwordHash       String
+  prenom             String
+  nom                String?
+  poste              String?
+  equipe             String?
+  role               Role          @default(SALARIE)
+  actif              Boolean       @default(true)
+  /// Horaires de référence, au format HH:MM
+  refMatin           String        @default("09:00")
+  refPause           String        @default("12:30")
+  refMidi            String        @default("14:00")
+  refSoir            String        @default("17:30")
+  /// Solde de départ en minutes (repris de l'Excel)
+  soldeInitial       Int           @default(0)
+  rappelSoir         Boolean       @default(false)
+  mustChangePassword Boolean       @default(true)
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+  declarations       Declaration[]
+
+  @@index([actif])
+}
+
+model Declaration {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// Jour concerné, au format YYYY-MM-DD
+  date          String
+  moment        Moment
+  /// Heure déclarée au format HH:MM (null pour une récup)
+  heure         String?
+  /// Écart signé en minutes, déjà arrondi (une récup est négative)
+  minutes       Int
+  /// Pour une récup : "Matin", "Après-midi" ou "Journée"
+  libelle       String?
+  motif         String?
+  client        String?
+  justification String?
+  statut        Statut   @default(DECLAREE)
+  /// Jour de saisie (YYYY-MM-DD, heure de Paris) : différent de `date` = déclaré après coup
+  creeLe        String
+  modifiee      Boolean  @default(false)
+  demandeeParId String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([userId, date, moment])
+  @@index([userId, date])
+  @@index([date])
+}
+
+model Cloture {
+  /// Mois au format YYYY-MM
+  mois       String   @id
+  clotureeLe DateTime @default(now())
+  parId      String
+}
+
+model Parametres {
+  id             Int     @id @default(1)
+  /// 1 = 1h sup donne 1h de récup, 1.25 = majoration 25 %
+  majoration     Float   @default(1)
+  arrondiMinutes Int     @default(15)
+  recapVendredi  Boolean @default(true)
+}
