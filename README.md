@@ -1,4 +1,6 @@
-# Heures Sup GC
+# HoraireGC · Heures Sup GC
+
+Dépôt : github.com/GCDeveloppement-code/HoraireGC
 
 Le compteur d'heures sup de GC Développement. Une journée normale ne demande rien : on ne déclare que les écarts (retard le matin, midi écourté, soirée qui déborde), en un tap, et l'appli calcule le reste. La RH voit tout, demande des confirmations, clôture le mois et exporte pour la paie.
 
@@ -46,13 +48,12 @@ public/manifest.webmanifest, public/sw.js, public/icons   PWA
 
 Branches : `main` (prod, https://horaire.gcdeveloppement.fr), `develop` (intégration, staging optionnel), `feature/*` depuis `develop`, `hotfix/*` depuis `main`.
 
-À chaque push sur `main`, GitHub Actions construit l'image Docker, la pousse sur GHCR (`ghcr.io/<owner>/heures-sup-gc:main`) puis se connecte au VPS en SSH et relance `docker compose` dans `/srv/heures-sup-gc/prod`. Un push sur `develop` construit l'image et ne déploie que si la variable de dépôt `STAGING` vaut `true` (dossier `/srv/heures-sup-gc/staging`). Au démarrage, le conteneur applique les migrations (`prisma migrate deploy`) et, si `SEED_AU_DEMARRAGE=1`, crée les comptes de `prisma/equipe.json`.
+À chaque push sur `main`, GitHub Actions construit l'image Docker, la pousse sur GHCR (`ghcr.io/gcdeveloppement-code/horairegc:main`) puis se connecte au VPS en SSH et relance `docker compose` dans `/srv/heures-sup-gc/prod`. Un push sur `develop` construit l'image et ne déploie que si la variable de dépôt `STAGING` vaut `true` (dossier `/srv/heures-sup-gc/staging`). Au démarrage, le conteneur applique les migrations (`prisma migrate deploy`) et, si `SEED_AU_DEMARRAGE=1`, crée les comptes de `prisma/equipe.json`.
 
 Mise en place du VPS en une fois : `deploy/installer-vps.sh` (Docker, utilisateur `deploy` + clé SSH, dossier prod, `.env` aux secrets générés). Exposition HTTPS : `deploy/reverse-proxy.md` (Caddy fourni si rien n'écoute sur 80/443, sinon Nginx ou Traefik).
 
-Secrets à créer dans le dépôt GitHub : `VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY` (et `VPS_PORT` si différent de 22). Ils sont affichés à la fin du script d'installation.
+Secrets à créer dans le dépôt GitHub : `VPS_HOST`, `VPS_PORT` (715 sur le VPS GC), `VPS_USER`, `VPS_SSH_KEY`. Ils sont affichés à la fin du script d'installation.
 
 ## À faire ensuite
 
 Rappels (récap du vendredi, rappel du soir) par notification push ou email, refacturation des débordements aux partenaires, suppression douce des déclarations avec historique.
-# HoraireGC

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Installation en une fois sur le VPS (à lancer en root ou avec sudo) :
-#   curl -fsSL https://raw.githubusercontent.com/Quentindurant/heures-sup-gc/main/deploy/installer-vps.sh | sudo bash
+#   curl -fsSL https://raw.githubusercontent.com/GCDeveloppement-code/HoraireGC/main/deploy/installer-vps.sh | sudo bash
 # ou, depuis un clone : sudo bash deploy/installer-vps.sh
 #
 # Ce que ça fait : installe Docker s'il manque, crée /srv/heures-sup-gc/prod avec le docker-compose.yml
@@ -9,7 +9,9 @@
 set -euo pipefail
 
 DOMAINE="${DOMAINE:-horaire.gcdeveloppement.fr}"
-OWNER="${OWNER:-quentindurant}"
+REPO="${REPO:-GCDeveloppement-code/HoraireGC}"   # dépôt GitHub
+IMAGE_BASE="ghcr.io/$(echo "$REPO" | tr '[:upper:]' '[:lower:]')"
+OWNER="${REPO%%/*}"
 DIR=/srv/heures-sup-gc/prod
 DEPLOY_USER=deploy
 
@@ -38,11 +40,11 @@ mkdir -p "$DIR"
 if [ -f "$(dirname "$0")/docker-compose.vps.yml" ]; then
   cp "$(dirname "$0")/docker-compose.vps.yml" "$DIR/docker-compose.yml"
 else
-  curl -fsSL "https://raw.githubusercontent.com/$OWNER/heures-sup-gc/main/deploy/docker-compose.vps.yml" -o "$DIR/docker-compose.yml"
+  curl -fsSL "https://raw.githubusercontent.com/$REPO/main/deploy/docker-compose.vps.yml" -o "$DIR/docker-compose.yml"
 fi
 if [ ! -f "$DIR/.env" ]; then
   cat > "$DIR/.env" <<EOF
-IMAGE=ghcr.io/$OWNER/heures-sup-gc:main
+IMAGE=$IMAGE_BASE:main
 DOMAINE=$DOMAINE
 PORT_LOCAL=3010
 POSTGRES_PASSWORD=$(openssl rand -hex 24)
@@ -61,14 +63,17 @@ echo "    sudo -u $DEPLOY_USER docker login ghcr.io -u $OWNER   (mot de passe : 
 
 PORT_80_LIBRE=1
 if ss -ltn 2>/dev/null | grep -qE ':(80|443)\s'; then PORT_80_LIBRE=0; fi
+SSH_PORT="$(grep -Ei '^\s*Port\s+[0-9]+' /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf 2>/dev/null | awk '{print $NF}' | tail -1)"
+SSH_PORT="${SSH_PORT:-22}"
 
 cat <<EOF
 
 ================================================================================
  Reste à faire
 ================================================================================
-1. Dans GitHub → dépôt heures-sup-gc → Settings → Secrets and variables → Actions :
+1. Dans GitHub → dépôt $REPO → Settings → Secrets and variables → Actions :
      VPS_HOST     = $(hostname -I 2>/dev/null | awk '{print $1}')
+     VPS_PORT     = $SSH_PORT
      VPS_USER     = $DEPLOY_USER
      VPS_SSH_KEY  = (colle intégralement la clé privée ci-dessous)
 

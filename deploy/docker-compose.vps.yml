@@ -2,7 +2,7 @@
 # Le script deploy/installer-vps.sh met tout ça en place.
 #
 # .env attendu :
-#   IMAGE=ghcr.io/quentindurant/heures-sup-gc:main
+#   IMAGE=ghcr.io/gcdeveloppement-code/horairegc:main
 #   DOMAINE=horaire.gcdeveloppement.fr
 #   PORT_LOCAL=3010
 #   POSTGRES_PASSWORD=un-mot-de-passe-solide
