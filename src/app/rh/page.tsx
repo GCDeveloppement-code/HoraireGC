@@ -36,42 +36,39 @@ export default async function PageCompteurs({ searchParams }: { searchParams: Pr
 
   return (
     <div className="rh">
-      <EnteteRH prenom={rh.prenom} mois={mois} moisCourant={moisCourant} clos={clos} onglet="compteurs" />
+      <EnteteRH
+        prenom={rh.prenom}
+        mois={mois}
+        moisCourant={moisCourant}
+        clos={clos}
+        onglet="compteurs"
+        stats={[
+          { k: "Heures sup du mois", v: fmtDuree(agg.sup) },
+          { k: "Récups posées", v: fmtDuree(agg.recups) },
+          { k: "À vérifier", v: String(verif) },
+        ]}
+        note={
+          verif
+            ? `${pl(agg.apres, "ligne")} après coup · ${agg.aconf} à confirmer`
+            : `${pl(nbSup, "personne")} sur ${lignes.length} en écart · retards ${fmtDuree(agg.retards)}`
+        }
+      />
 
-      <div className="tiles">
-        <div className="tile">
-          <div className="k">Heures sup du mois</div>
-          <div className="v tnum">{fmtDuree(agg.sup)}</div>
-          <div className="s">
-            {pl(nbSup, "personne")} sur {lignes.length} · retards {fmtDuree(agg.retards)}
-          </div>
-        </div>
-        <div className="tile">
-          <div className="k">Récups posées</div>
-          <div className="v tnum">{fmtDuree(agg.recups)}</div>
-          <div className="s">déduites des soldes</div>
-        </div>
-        <div className={`tile${verif ? " attn" : ""}`}>
-          <div className="k">À vérifier</div>
-          <div className="v tnum">{verif}</div>
-          <div className="s">{verif ? `${pl(agg.apres, "ligne")} après coup · ${agg.aconf} à confirmer` : "rien en attente"}</div>
+      <div className="barre-filtres">
+        <div className="puces">
+          <Link href={`/rh?mois=${mois}`} className={`puce${filtre === "tous" ? " on" : ""}`}>
+            Tout le monde
+          </Link>
+          <Link href={`/rh?mois=${mois}&filtre=verif`} className={`puce${filtre === "verif" ? " on" : ""}`}>
+            À vérifier
+          </Link>
+          <Link href={`/rh?mois=${mois}&filtre=inhabituel`} className={`puce${filtre === "inhabituel" ? " on" : ""}`}>
+            Volume inhabituel
+          </Link>
         </div>
       </div>
 
-      <div className="filters">
-        <span className="lbl">Afficher</span>
-        <Link href={`/rh?mois=${mois}`} className={filtre === "tous" ? "on" : ""}>
-          Tout le monde
-        </Link>
-        <Link href={`/rh?mois=${mois}&filtre=verif`} className={filtre === "verif" ? "on" : ""}>
-          À vérifier
-        </Link>
-        <Link href={`/rh?mois=${mois}&filtre=inhabituel`} className={filtre === "inhabituel" ? "on" : ""}>
-          Volume inhabituel
-        </Link>
-      </div>
-
-      <div className="table-wrap">
+      <div className="table-wrap" style={{ marginTop: 16 }}>
         <table>
           <thead>
             <tr>
@@ -88,7 +85,10 @@ export default async function PageCompteurs({ searchParams }: { searchParams: Pr
               visibles.map((l) => (
                 <tr key={l.id} className="clic">
                   <td>
-                    <Link href={`/rh/personnes/${l.id}?mois=${mois}`} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
+                    <Link
+                      href={`/rh/personnes/${l.id}?mois=${mois}`}
+                      style={{ textDecoration: "none", color: "inherit", display: "block" }}
+                    >
                       <div className="who">{l.prenom}</div>
                       <div className="poste">{[l.equipe, l.poste].filter(Boolean).join(" · ")}</div>
                     </Link>
@@ -99,14 +99,30 @@ export default async function PageCompteurs({ searchParams }: { searchParams: Pr
                       <>
                         <span className="tnum">{fmtDuree(l.totaux.sup)}</span>
                         <span className="bar" style={{ width: Math.round((l.totaux.sup / maxSup) * 110) }} />
-                        {l.totaux.sup >= 480 && <span className="rchip warn" style={{ marginLeft: 8 }}>inhabituel</span>}
+                        {l.totaux.sup >= 480 && (
+                          <span className="rchip warn" style={{ marginLeft: 8 }}>
+                            inhabituel
+                          </span>
+                        )}
                       </>
                     ) : (
                       <span className="zero">0h00</span>
                     )}
                   </td>
-                  <td className="r">{l.totaux.retards < 0 ? <span className="r-late">{fmtDuree(l.totaux.retards)}</span> : <span className="zero">0h00</span>}</td>
-                  <td className="r">{l.totaux.recups < 0 ? <span className="r-recup">{fmtDuree(l.totaux.recups)}</span> : <span className="zero">0h00</span>}</td>
+                  <td className="r">
+                    {l.totaux.retards < 0 ? (
+                      <span className="r-late">{fmtDuree(l.totaux.retards)}</span>
+                    ) : (
+                      <span className="zero">0h00</span>
+                    )}
+                  </td>
+                  <td className="r">
+                    {l.totaux.recups < 0 ? (
+                      <span className="r-recup">{fmtDuree(l.totaux.recups)}</span>
+                    ) : (
+                      <span className="zero">0h00</span>
+                    )}
+                  </td>
                   <td>
                     {l.totaux.apresCoup > 0 && <span className="rchip">{l.totaux.apresCoup} après coup</span>}{" "}
                     {l.totaux.aConfirmer > 0 && <span className="rchip warn">{l.totaux.aConfirmer} à confirmer</span>}

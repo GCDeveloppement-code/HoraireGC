@@ -40,7 +40,7 @@ export default async function PagePersonne({
   return (
     <div className="rh">
       <EnteteRH prenom={rh.prenom} mois={mois} moisCourant={moisCourant} clos={clos} onglet="compteurs" />
-      <p style={{ margin: "0 0 14px" }}>
+      <p style={{ margin: "22px 0 14px" }}>
         <Link href={`/rh?mois=${mois}`}>‹ Tout le monde</Link>
       </p>
       <div className="card" style={{ maxWidth: 760 }}>
