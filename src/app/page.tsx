@@ -27,6 +27,7 @@ export default async function PageAccueil() {
       aujourdhui={date}
       moisClos={clos}
       majoration={params.majoration}
+      regles={{ arrondiMinutes: params.arrondiMinutes, toleranceMinutes: params.toleranceMinutes }}
       prenomRH={rh}
     />
   );

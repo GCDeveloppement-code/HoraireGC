@@ -39,15 +39,39 @@ export function arrondir(minutes: number, pas = 15): number {
   return r === 0 ? 0 : r; // évite le -0
 }
 
+/** Règles communes fixées par la RH (page Règles). Les valeurs par défaut sont celles de la base. */
+export type Regles = { arrondiMinutes: number; toleranceMinutes: number };
+export const REGLES_DEFAUT: Regles = { arrondiMinutes: 15, toleranceMinutes: 15 };
+
+/** Horaire de référence de la personne pour un moment donné. */
+export function refDuMoment(moment: MomentJour, refs: Refs): string {
+  return moment === "MATIN" ? refs.refMatin : moment === "MIDI" ? refs.refMidi : refs.refSoir;
+}
+
 /**
- * Écart signé (en minutes, arrondi) entre l'heure déclarée et l'horaire de référence.
+ * Écart signé brut (en minutes, sans arrondi ni tolérance) entre l'heure déclarée et l'horaire de référence.
  * Matin et midi : arriver ou reprendre plus tôt est positif, plus tard est négatif.
  * Soir : finir plus tard est positif, plus tôt est négatif.
  */
-export function ecart(moment: MomentJour, heure: string, refs: Refs, pas = 15): number {
-  const ref = moment === "MATIN" ? refs.refMatin : moment === "MIDI" ? refs.refMidi : refs.refSoir;
-  const brut = moment === "SOIR" ? toMin(heure) - toMin(ref) : toMin(ref) - toMin(heure);
-  return arrondir(brut, pas);
+export function ecartBrut(moment: MomentJour, heure: string, refs: Refs): number {
+  const ref = toMin(refDuMoment(moment, refs));
+  return moment === "SOIR" ? toMin(heure) - ref : ref - toMin(heure);
+}
+
+/**
+ * Écart retenu : 0 si l'écart brut tient dans la tolérance (dans un sens comme dans l'autre : finir à 17h40
+ * ou arriver à 9h10 ne compte pas), sinon l'écart brut arrondi au pas.
+ */
+export function ecart(moment: MomentJour, heure: string, refs: Refs, regles: Regles = REGLES_DEFAUT): number {
+  const brut = ecartBrut(moment, heure, refs);
+  if (Math.abs(brut) <= regles.toleranceMinutes) return 0;
+  return arrondir(brut, regles.arrondiMinutes);
+}
+
+/** Vrai si l'heure déclarée s'écarte de la référence mais reste dans la tolérance. */
+export function dansTolerance(moment: MomentJour, heure: string, refs: Refs, regles: Regles = REGLES_DEFAUT): boolean {
+  const brut = ecartBrut(moment, heure, refs);
+  return brut !== 0 && Math.abs(brut) <= regles.toleranceMinutes;
 }
 
 /** Durées de récup possibles, déduites des horaires de la personne. */

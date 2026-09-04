@@ -23,11 +23,11 @@ Scripts utiles : `npm test` (calculs), `npm run typecheck`, `npm run lint`, `npm
 
 ## Comment ça marche
 
-Chaque personne a des horaires de référence (par défaut 9h · 12h30 · 14h · 17h30, ajustables par la RH). Une déclaration, c'est un moment (matin, midi, soir) et une heure : l'écart par rapport à la référence est arrondi au quart d'heure, positif (heures sup) ou négatif (retard). Le gros bouton de l'écran d'accueil prend l'heure courante. Une déclaration faite un autre jour que le jour concerné est marquée « après coup ». Toute déclaration peut porter un motif, un client et une justification libre.
+Chaque personne a des horaires de référence (par défaut 9h · 12h30 · 14h · 17h30, ajustables par la RH). Une déclaration, c'est un moment (matin, midi, soir) et une heure : l'écart par rapport à la référence est positif (heures sup) ou négatif (retard). Une tolérance (15 min par défaut, réglable par la RH) absorbe les petits écarts dans les deux sens : finir à 17h40 ou arriver à 9h10 ne compte pas ; au-delà, l'écart entier est retenu, arrondi au quart d'heure. Le gros bouton de l'écran d'accueil prend l'heure courante. Une déclaration faite un autre jour que le jour concerné est marquée « après coup ». Toute déclaration peut porter un motif, un client et une justification libre.
 
 Les récups se posent en demi-journée ou journée (durées déduites des horaires de la personne). Le solde = solde de départ + heures sup (majorées si la RH l'a décidé) + retards + récups.
 
-L'écran salarié suit l'heure : Aube le matin, Ciel l'après-midi, Soir après 17h30. La vue RH (`/rh`) est la version claire : compteurs du mois, fiche par personne, demande de confirmation ligne par ligne, clôture du mois, export Excel (`/rh/export?mois=YYYY-MM`), règles (majoration, arrondi), horaires et comptes.
+L'écran salarié suit l'heure : Aube le matin, Ciel l'après-midi, Soir après 17h30. La vue RH (`/rh`) est la version claire : compteurs du mois, fiche par personne, demande de confirmation ligne par ligne, clôture du mois, export Excel (`/rh/export?mois=YYYY-MM`), règles (tolérance, majoration, arrondi), horaires et comptes.
 
 ## Organisation du code
 

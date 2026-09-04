@@ -21,7 +21,15 @@ function useAction() {
   return { message, setMessage, secret, setSecret, enCours, lancer };
 }
 
-export function FormulaireRegles({ majoration, arrondiMinutes }: { majoration: number; arrondiMinutes: number }) {
+export function FormulaireRegles({
+  majoration,
+  arrondiMinutes,
+  toleranceMinutes,
+}: {
+  majoration: number;
+  arrondiMinutes: number;
+  toleranceMinutes: number;
+}) {
   const { message, setMessage, enCours, lancer } = useAction();
   return (
     <form
@@ -36,6 +44,17 @@ export function FormulaireRegles({ majoration, arrondiMinutes }: { majoration: n
           <option value="1">aucune : 1h sup = 1h de récup</option>
           <option value="1.25">25 % : 1h sup = 1h15 de récup</option>
           <option value="1.5">50 % : 1h sup = 1h30 de récup</option>
+        </select>
+      </div>
+      <div className="prow">
+        <span className="k">Tolérance avant de compter</span>
+        <select name="toleranceMinutes" defaultValue={String(toleranceMinutes)}>
+          <option value="0">aucune : tout écart compte</option>
+          <option value="5">5 minutes</option>
+          <option value="10">10 minutes (9h10, 17h40 ne comptent pas)</option>
+          <option value="15">15 minutes (9h15, 17h45 ne comptent pas)</option>
+          <option value="20">20 minutes</option>
+          <option value="30">30 minutes</option>
         </select>
       </div>
       <div className="prow">
@@ -80,24 +99,72 @@ export function LigneUtilisateur({ u, soldeActuel, estMoi }: { u: UtilisateurFor
     <>
       <tr style={{ opacity: u.actif ? 1 : 0.55 }}>
         <td>
-          <form id={idForm} onSubmit={(e) => { e.preventDefault(); lancer(() => majUtilisateur(new FormData(e.currentTarget))); }}>
+          <form
+            id={idForm}
+            onSubmit={(e) => {
+              e.preventDefault();
+              lancer(() => majUtilisateur(new FormData(e.currentTarget)));
+            }}
+          >
             <input type="hidden" name="id" value={u.id} />
           </form>
           <input className="field" form={idForm} name="prenom" defaultValue={u.prenom} style={{ width: 96 }} aria-label="Prénom" />
-          <input className="field" form={idForm} name="nom" defaultValue={u.nom} placeholder="Nom" style={{ width: 96, marginTop: 4 }} aria-label="Nom" />
+          <input
+            className="field"
+            form={idForm}
+            name="nom"
+            defaultValue={u.nom}
+            placeholder="Nom"
+            style={{ width: 96, marginTop: 4 }}
+            aria-label="Nom"
+          />
         </td>
         <td>
-          <input className="field" form={idForm} name="email" type="email" defaultValue={u.email} style={{ width: 190 }} aria-label="Email" />
+          <input
+            className="field"
+            form={idForm}
+            name="email"
+            type="email"
+            defaultValue={u.email}
+            style={{ width: 190 }}
+            aria-label="Email"
+          />
         </td>
         <td>
-          <input className="field" form={idForm} name="equipe" defaultValue={u.equipe} placeholder="Équipe" style={{ width: 120 }} aria-label="Équipe" />
-          <input className="field" form={idForm} name="poste" defaultValue={u.poste} placeholder="Poste" style={{ width: 120, marginTop: 4 }} aria-label="Poste" />
+          <input
+            className="field"
+            form={idForm}
+            name="equipe"
+            defaultValue={u.equipe}
+            placeholder="Équipe"
+            style={{ width: 120 }}
+            aria-label="Équipe"
+          />
+          <input
+            className="field"
+            form={idForm}
+            name="poste"
+            defaultValue={u.poste}
+            placeholder="Poste"
+            style={{ width: 120, marginTop: 4 }}
+            aria-label="Poste"
+          />
         </td>
-        <td><input className="field" form={idForm} type="time" name="refMatin" defaultValue={u.refMatin} aria-label="Début" /></td>
-        <td><input className="field" form={idForm} type="time" name="refPause" defaultValue={u.refPause} aria-label="Pause" /></td>
-        <td><input className="field" form={idForm} type="time" name="refMidi" defaultValue={u.refMidi} aria-label="Reprise" /></td>
-        <td><input className="field" form={idForm} type="time" name="refSoir" defaultValue={u.refSoir} aria-label="Fin" /></td>
-        <td className="r"><input className="field init" form={idForm} name="soldeInitial" defaultValue={u.soldeInitial} aria-label="Solde de départ" /></td>
+        <td>
+          <input className="field" form={idForm} type="time" name="refMatin" defaultValue={u.refMatin} aria-label="Début" />
+        </td>
+        <td>
+          <input className="field" form={idForm} type="time" name="refPause" defaultValue={u.refPause} aria-label="Pause" />
+        </td>
+        <td>
+          <input className="field" form={idForm} type="time" name="refMidi" defaultValue={u.refMidi} aria-label="Reprise" />
+        </td>
+        <td>
+          <input className="field" form={idForm} type="time" name="refSoir" defaultValue={u.refSoir} aria-label="Fin" />
+        </td>
+        <td className="r">
+          <input className="field init" form={idForm} name="soldeInitial" defaultValue={u.soldeInitial} aria-label="Solde de départ" />
+        </td>
         <td className="r tnum">{soldeActuel}</td>
         <td>
           <select className="field" form={idForm} name="role" defaultValue={u.role} disabled={estMoi} aria-label="Rôle">
@@ -122,7 +189,8 @@ export function LigneUtilisateur({ u, soldeActuel, estMoi }: { u: UtilisateurFor
       {secret && (
         <tr>
           <td colSpan={12} style={{ background: "var(--straw)", color: "var(--straw-ink)" }}>
-            Mot de passe provisoire pour {u.prenom} : <strong className="tnum">{secret}</strong> (à lui transmettre, il devra le changer à la connexion){" "}
+            Mot de passe provisoire pour {u.prenom} : <strong className="tnum">{secret}</strong> (à lui transmettre, il devra le changer à
+            la connexion){" "}
             <button className="rbtn-sm ghost" type="button" onClick={() => setSecret(null)}>
               OK
             </button>

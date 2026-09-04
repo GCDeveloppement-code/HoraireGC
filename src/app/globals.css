@@ -1169,6 +1169,7 @@ td.bal {
   border: 1px solid var(--card-b);
   border-radius: 22px;
   padding: 18px 20px;
+  min-width: 0; /* un tableau large défile dans la carte au lieu d'élargir la page */
 }
 .card h2 {
   font-size: 17px;

@@ -2,8 +2,10 @@ import { describe, expect, it } from "vitest";
 import {
   ambiance,
   arrondir,
+  dansTolerance,
   dureesRecup,
   ecart,
+  ecartBrut,
   estApresCoup,
   fmtDate,
   fmtDuree,
@@ -43,12 +45,44 @@ describe("écart par rapport à l'horaire de référence", () => {
   });
   it("midi : reprendre plus tôt est positif", () => {
     expect(ecart("MIDI", "13:20", refs)).toBe(45);
-    expect(ecart("MIDI", "14:10", refs)).toBe(-15);
+    expect(ecart("MIDI", "14:20", refs)).toBe(-15);
   });
   it("respecte des horaires aménagés", () => {
     const decale = { ...refs, refMatin: "09:30", refMidi: "14:30", refSoir: "18:00" };
     expect(ecart("SOIR", "19:30", decale)).toBe(90);
     expect(ecart("MATIN", "09:30", decale)).toBe(0);
+  });
+});
+
+describe("tolérance", () => {
+  const sans = { arrondiMinutes: 15, toleranceMinutes: 0 };
+  const dix = { arrondiMinutes: 15, toleranceMinutes: 10 };
+  it("un écart dans la tolérance (15 min par défaut) ne compte pas, dans les deux sens", () => {
+    expect(ecart("SOIR", "17:40", refs)).toBe(0);
+    expect(ecart("SOIR", "17:45", refs)).toBe(0);
+    expect(ecart("MATIN", "09:10", refs)).toBe(0);
+    expect(ecart("MATIN", "09:15", refs)).toBe(0);
+    expect(ecart("MATIN", "08:50", refs)).toBe(0);
+    expect(ecart("MIDI", "14:10", refs)).toBe(0);
+  });
+  it("au-delà de la tolérance, l'écart entier est retenu, arrondi", () => {
+    expect(ecart("SOIR", "17:46", refs)).toBe(15);
+    expect(ecart("SOIR", "17:53", refs)).toBe(30);
+    expect(ecart("SOIR", "19:00", refs)).toBe(90);
+    expect(ecart("MATIN", "09:16", refs)).toBe(-15);
+    expect(ecart("MATIN", "09:25", refs)).toBe(-30);
+  });
+  it("se règle : à 0 on retrouve l'arrondi pur, à 10 le seuil bouge", () => {
+    expect(ecart("SOIR", "17:40", refs, sans)).toBe(15);
+    expect(ecart("MATIN", "09:10", refs, sans)).toBe(-15);
+    expect(ecart("SOIR", "17:40", refs, dix)).toBe(0);
+    expect(ecart("SOIR", "17:41", refs, dix)).toBe(15);
+  });
+  it("distingue « pile à l'heure » de « dans la tolérance »", () => {
+    expect(ecartBrut("SOIR", "17:40", refs)).toBe(10);
+    expect(dansTolerance("SOIR", "17:40", refs)).toBe(true);
+    expect(dansTolerance("SOIR", "17:30", refs)).toBe(false);
+    expect(dansTolerance("SOIR", "18:00", refs)).toBe(false);
   });
 });
 

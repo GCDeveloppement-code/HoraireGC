@@ -103,6 +103,7 @@ export async function GET(req: Request) {
   infos.addRow(["Mois", fmtMois(mois)]);
   infos.addRow(["Clôturé", cloture ? `oui, le ${cloture.clotureeLe.toLocaleDateString("fr-FR")}` : "non"]);
   infos.addRow(["Majoration des heures sup", `×${p.majoration}`]);
+  infos.addRow(["Tolérance avant de compter", `${p.toleranceMinutes} min`]);
   infos.addRow(["Arrondi", `${p.arrondiMinutes} min`]);
   infos.addRow(["Généré le", new Date().toLocaleString("fr-FR", { timeZone: "Europe/Paris" })]);
 

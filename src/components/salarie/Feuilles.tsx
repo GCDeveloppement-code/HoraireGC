@@ -5,6 +5,7 @@ import { enregistrerDeclaration, poserRecup, reglerRappelSoir, supprimerDeclarat
 import { deconnexion } from "@/actions/auth";
 import type { DeclarationDTO, UtilisateurDTO } from "@/lib/donnees";
 import {
+  dansTolerance,
   dureesRecup,
   ecart,
   estApresCoup,
@@ -17,9 +18,11 @@ import {
   MOMENT_LABEL,
   MOTIFS,
   ORDRE_MOMENT,
+  refDuMoment,
   toMin,
   totaux,
   type MomentJour,
+  type Regles,
 } from "@/lib/calcul";
 import { Chips, IconeFermer, IconeInfo } from "./Elements";
 
@@ -44,6 +47,7 @@ export function FeuilleDeclaration({
   declarations,
   aujourdhui,
   maintenant,
+  regles,
   fermer,
   notifier,
   rafraichir,
@@ -51,6 +55,7 @@ export function FeuilleDeclaration({
 }: Commun & {
   cle: string;
   feuille: { date: string; moment: MomentJour; id?: string };
+  regles: Regles;
   utilisateur: UtilisateurDTO;
   declarations: DeclarationDTO[];
   aujourdhui: string;
@@ -60,8 +65,9 @@ export function FeuilleDeclaration({
   const existante = feuille.id
     ? declarations.find((d) => d.id === feuille.id)
     : declarations.find((d) => d.date === feuille.date && d.moment === feuille.moment);
-  const ref = feuille.moment === "MATIN" ? utilisateur.refMatin : feuille.moment === "MIDI" ? utilisateur.refMidi : utilisateur.refSoir;
-  const heureInitiale = existante?.heure ?? (feuille.date === aujourdhui && feuille.moment === momentCourant(maintenant) ? maintenant : ref);
+  const ref = refDuMoment(feuille.moment, utilisateur);
+  const heureInitiale =
+    existante?.heure ?? (feuille.date === aujourdhui && feuille.moment === momentCourant(maintenant) ? maintenant : ref);
 
   const [heure, setHeure] = useState(heureInitiale);
   const [motif, setMotif] = useState<string | null>(existante?.motif ?? null);
@@ -70,7 +76,8 @@ export function FeuilleDeclaration({
   const [detail, setDetail] = useState(!!(existante?.motif || existante?.client || existante?.justification));
   const [occupe, setOccupe] = useState(false);
 
-  const e = ecart(feuille.moment, heure, utilisateur);
+  const e = ecart(feuille.moment, heure, utilisateur, regles);
+  const tolere = e === 0 && dansTolerance(feuille.moment, heure, utilisateur, regles);
 
   async function valider() {
     setOccupe(true);
@@ -134,7 +141,11 @@ export function FeuilleDeclaration({
       <div className="preview">
         <span className={`big ${e > 0 ? "v-hs" : e < 0 ? "v-late" : ""}`}>{e === 0 ? "0h00" : fmtDuree(e)}</span>
         <span className="note">
-          {e === 0 ? "dans l’horaire, rien à déclarer" : e > 0 ? "heures sup" : "retard"} · réf. {hm(ref)} · arrondi au quart d’heure
+          {e === 0
+            ? `${tolere ? `dans la tolérance de ${regles.toleranceMinutes} min, rien à compter` : "dans l’horaire, rien à déclarer"} · réf. ${hm(ref)}`
+            : `${e > 0 ? "heures sup" : "retard"} · réf. ${hm(ref)}${regles.toleranceMinutes > 0 ? ` · tolérance ${regles.toleranceMinutes} min` : ""} · arrondi ${
+                regles.arrondiMinutes === 15 ? "au quart d’heure" : `aux ${regles.arrondiMinutes} min`
+              }`}
         </span>
       </div>
 
@@ -150,7 +161,12 @@ export function FeuilleDeclaration({
                   </button>
                 ))}
               </div>
-              <input className="text-in" placeholder="Client ou site (facultatif)" value={client} onChange={(ev) => setClient(ev.target.value)} />
+              <input
+                className="text-in"
+                placeholder="Client ou site (facultatif)"
+                value={client}
+                onChange={(ev) => setClient(ev.target.value)}
+              />
             </>
           )}
           <textarea
@@ -359,7 +375,10 @@ export function FeuilleMois({
                   </span>
                   <span className="what">
                     <span className="l1">
-                      {d.moment === "RECUP" ? `Récup · ${d.libelle}` : `${MOMENT_LABEL[d.moment as MomentJour].label} · ${d.heure ? hm(d.heure) : ""}`} <Chips d={d} />
+                      {d.moment === "RECUP"
+                        ? `Récup · ${d.libelle}`
+                        : `${MOMENT_LABEL[d.moment as MomentJour].label} · ${d.heure ? hm(d.heure) : ""}`}{" "}
+                      <Chips d={d} />
                     </span>
                     <span className="l2">{l2}</span>
                   </span>
@@ -417,7 +436,13 @@ export function FeuilleReglages({ utilisateur, fermer, notifier, rafraichir }: C
       </div>
       <div className="settings-row">
         <span className="k">Rappel à 18h si rien de déclaré</span>
-        <button className={`toggle${rappel ? " on" : ""}`} role="switch" aria-checked={rappel} aria-label="Rappel du soir" onClick={basculer} />
+        <button
+          className={`toggle${rappel ? " on" : ""}`}
+          role="switch"
+          aria-checked={rappel}
+          aria-label="Rappel du soir"
+          onClick={basculer}
+        />
       </div>
       <div className="field-lbl" style={{ marginTop: 14 }}>
         Compte

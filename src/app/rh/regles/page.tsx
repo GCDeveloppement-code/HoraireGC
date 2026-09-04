@@ -23,10 +23,13 @@ export default async function PageRegles() {
         <div className="card">
           <h2>Règles de calcul</h2>
           <p>
-            Elles s’appliquent à tout le monde. La majoration transforme les heures sup en temps de récup ; les retards et les récups se déduisent tels
-            quels. Changer la majoration recalcule tous les soldes affichés, sans toucher aux déclarations.
+            Elles s’appliquent à tout le monde. La tolérance, c’est la marge avant de compter : finir à 17h40 ou arriver à 9h10 ne donne
+            rien tant que l’écart tient dedans, dans un sens comme dans l’autre. Au-delà, l’écart entier est retenu, arrondi. La majoration
+            transforme les heures sup en temps de récup ; les retards et les récups se déduisent tels quels. Changer la majoration recalcule
+            tous les soldes affichés ; la tolérance et l’arrondi valent pour les prochaines déclarations, les existantes gardent leur
+            valeur.
           </p>
-          <FormulaireRegles majoration={p.majoration} arrondiMinutes={p.arrondiMinutes} />
+          <FormulaireRegles majoration={p.majoration} arrondiMinutes={p.arrondiMinutes} toleranceMinutes={p.toleranceMinutes} />
           <div className="prow">
             <span className="k">Déclaration après coup</span>
             <span>autorisée jusqu’à la clôture, marquée « après coup »</span>
@@ -36,8 +39,8 @@ export default async function PageRegles() {
         <div className="card">
           <h2>Personnes, horaires et soldes de départ</h2>
           <p>
-            Horaires GC par défaut : 9h · 12h30 · 14h · 17h30, ajustables par personne (temps partiel, horaires décalés). Modifier les horaires recalcule
-            les déclarations déjà faites. Le solde de départ est repris de l’Excel, au format 5h30 ou -1h15.
+            Horaires GC par défaut : 9h · 12h30 · 14h · 17h30, ajustables par personne (temps partiel, horaires décalés). Modifier les
+            horaires recalcule les déclarations déjà faites. Le solde de départ est repris de l’Excel, au format 5h30 ou -1h15.
           </p>
           <div className="table-wrap" style={{ border: 0, borderRadius: 0, background: "transparent" }}>
             <table className="ptable">

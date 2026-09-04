@@ -1,6 +1,23 @@
 # Exposer horaire.gcdeveloppement.fr
 
-L'appli écoute sur `127.0.0.1:3010` (voir `PORT_LOCAL` dans le `.env` du VPS). Trois cas selon ce qui tourne déjà sur le serveur.
+L'appli écoute sur `127.0.0.1:3010` (voir `PORT_LOCAL` dans le `.env` du VPS). Selon ce qui tourne déjà sur le serveur.
+
+## Apache déjà en place (cas du VPS GC)
+
+```bash
+sudo a2enmod proxy proxy_http
+sudo tee /etc/apache2/sites-available/horaire.gcdeveloppement.fr.conf > /dev/null <<'EOF'
+<VirtualHost *:80>
+    ServerName horaire.gcdeveloppement.fr
+    ProxyPreserveHost On
+    ProxyPass / http://127.0.0.1:3010/
+    ProxyPassReverse / http://127.0.0.1:3010/
+</VirtualHost>
+EOF
+sudo a2ensite horaire.gcdeveloppement.fr
+sudo systemctl reload apache2
+sudo certbot --apache -d horaire.gcdeveloppement.fr   # crée le vhost 443 + redirection ; si certbot manque : apt install certbot python3-certbot-apache
+```
 
 ## Rien sur les ports 80/443 : Caddy fourni
 

@@ -6,6 +6,7 @@ import { confirmerDeclaration, declarerMaintenant, type Resultat } from "@/actio
 import type { DeclarationDTO, UtilisateurDTO } from "@/lib/donnees";
 import {
   ambiance,
+  dansTolerance,
   ecart,
   fmtDate,
   fmtDuree,
@@ -16,7 +17,9 @@ import {
   ORDRE_MOMENT,
   semaineDe,
   solde,
+  refDuMoment,
   type DeclarationCalc,
+  type Regles,
 } from "@/lib/calcul";
 import { Chips, Toast, type ToastState } from "./Elements";
 import { FeuilleDeclaration, FeuilleMois, FeuilleRecup, FeuilleReglages, type Feuille } from "./Feuilles";
@@ -28,6 +31,7 @@ type Props = {
   aujourdhui: string;
   moisClos: boolean;
   majoration: number;
+  regles: Regles;
   prenomRH: string;
 };
 
@@ -36,7 +40,7 @@ function heureLocale(): string {
   return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 }
 
-export function Accueil({ utilisateur, declarations, toutes, aujourdhui, moisClos, majoration, prenomRH }: Props) {
+export function Accueil({ utilisateur, declarations, toutes, aujourdhui, moisClos, majoration, regles, prenomRH }: Props) {
   const router = useRouter();
   const [, startTransition] = useTransition();
   const [maintenant, setMaintenant] = useState(heureLocale);
@@ -94,7 +98,11 @@ export function Accueil({ utilisateur, declarations, toutes, aujourdhui, moisClo
     const recup = declarations.find((d) => d.date === date && d.moment === "RECUP");
     if (date > aujourdhui) {
       if (recup) setFeuille({ type: "recup", id: recup.id });
-      else setToast({ texte: "Jour à venir : rien à déclarer pour l’instant", action: { label: "Poser une récup", fn: () => setFeuille({ type: "recup" }) } });
+      else
+        setToast({
+          texte: "Jour à venir : rien à déclarer pour l’instant",
+          action: { label: "Poser une récup", fn: () => setFeuille({ type: "recup" }) },
+        });
       return;
     }
     const ds = declarations
@@ -110,7 +118,13 @@ export function Accueil({ utilisateur, declarations, toutes, aujourdhui, moisClo
     rafraichir();
   }
 
-  const ecartMaintenant = ecart(moment, maintenant, utilisateur);
+  const ecartMaintenant = ecart(moment, maintenant, utilisateur, regles);
+  const sousTitreMaintenant =
+    ecartMaintenant !== 0
+      ? fmtDuree(ecartMaintenant)
+      : dansTolerance(moment, maintenant, utilisateur, regles)
+        ? `dans la tolérance de ${regles.toleranceMinutes} min`
+        : "dans l’horaire, rien à déclarer";
   const totalSemaine = useMemo(
     () => declarations.filter((d) => semaine.includes(d.date) && d.moment !== "RECUP").reduce((a, d) => a + d.minutes, 0),
     [declarations, semaine],
@@ -157,7 +171,10 @@ export function Accueil({ utilisateur, declarations, toutes, aujourdhui, moisClo
               <button className="btn-sm primary" onClick={() => confirmer(d.id)}>
                 Je confirme
               </button>
-              <button className="btn-sm" onClick={() => setFeuille({ type: "decl", date: d.date, moment: d.moment as "MATIN" | "MIDI" | "SOIR", id: d.id })}>
+              <button
+                className="btn-sm"
+                onClick={() => setFeuille({ type: "decl", date: d.date, moment: d.moment as "MATIN" | "MIDI" | "SOIR", id: d.id })}
+              >
                 Modifier
               </button>
             </div>
@@ -178,7 +195,8 @@ export function Accueil({ utilisateur, declarations, toutes, aujourdhui, moisClo
           {declDuJour ? (
             <>
               <span className="main">
-                {MOMENT_LABEL[moment].label} déclaré · <span className={declDuJour.minutes > 0 ? "v-hs" : "v-late"}>{fmtDuree(declDuJour.minutes)}</span>
+                {MOMENT_LABEL[moment].label} déclaré ·{" "}
+                <span className={declDuJour.minutes > 0 ? "v-hs" : "v-late"}>{fmtDuree(declDuJour.minutes)}</span>
               </span>
               <span className="sub">{declDuJour.heure ? hm(declDuJour.heure) : ""} · toucher pour modifier ou justifier</span>
             </>
@@ -186,8 +204,7 @@ export function Accueil({ utilisateur, declarations, toutes, aujourdhui, moisClo
             <>
               <span className="main">{MOMENT_LABEL[moment].maintenant}</span>
               <span className="sub">
-                {hm(maintenant)} → {ecartMaintenant === 0 ? "dans l’horaire, rien à déclarer" : fmtDuree(ecartMaintenant)} · réf.{" "}
-                {hm(moment === "MATIN" ? utilisateur.refMatin : moment === "MIDI" ? utilisateur.refMidi : utilisateur.refSoir)}
+                {hm(maintenant)} → {sousTitreMaintenant} · réf. {hm(refDuMoment(moment, utilisateur))}
               </span>
             </>
           )}
@@ -196,7 +213,9 @@ export function Accueil({ utilisateur, declarations, toutes, aujourdhui, moisClo
         <section>
           <div className="section-head">
             <h2>Cette semaine</h2>
-            <span className={`tnum ${totalSemaine > 0 ? "v-hs" : totalSemaine < 0 ? "v-late" : ""}`}>{totalSemaine === 0 ? "" : fmtDuree(totalSemaine)}</span>
+            <span className={`tnum ${totalSemaine > 0 ? "v-hs" : totalSemaine < 0 ? "v-late" : ""}`}>
+              {totalSemaine === 0 ? "" : fmtDuree(totalSemaine)}
+            </span>
           </div>
           <div className="wlist glass">
             {semaine.map((date) => {
@@ -261,6 +280,7 @@ export function Accueil({ utilisateur, declarations, toutes, aujourdhui, moisClo
           declarations={declarations}
           aujourdhui={aujourdhui}
           maintenant={maintenant}
+          regles={regles}
           fermer={() => setFeuille(null)}
           notifier={notifier}
           rafraichir={rafraichir}
@@ -299,4 +319,3 @@ export function Accueil({ utilisateur, declarations, toutes, aujourdhui, moisClo
     </div>
   );
 }
-

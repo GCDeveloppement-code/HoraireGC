@@ -54,9 +54,12 @@ export async function majParametres(formData: FormData): Promise<ResultatRH> {
   await utilisateurRH();
   const majoration = Number(formData.get("majoration"));
   const arrondi = Number(formData.get("arrondiMinutes"));
+  const tolerance = Number(formData.get("toleranceMinutes"));
   if (![1, 1.25, 1.5].includes(majoration)) return { ok: false, erreur: "Majoration invalide" };
   if (![5, 10, 15, 30].includes(arrondi)) return { ok: false, erreur: "Arrondi invalide" };
-  await db.parametres.upsert({ where: { id: 1 }, update: { majoration, arrondiMinutes: arrondi }, create: { id: 1, majoration, arrondiMinutes: arrondi } });
+  if (![0, 5, 10, 15, 20, 30].includes(tolerance)) return { ok: false, erreur: "Tolérance invalide" };
+  const valeurs = { majoration, arrondiMinutes: arrondi, toleranceMinutes: tolerance };
+  await db.parametres.upsert({ where: { id: 1 }, update: valeurs, create: { id: 1, ...valeurs } });
   toutRevalider();
   return { ok: true, message: "Règles enregistrées" };
 }
@@ -137,12 +140,15 @@ export async function majUtilisateur(formData: FormData): Promise<ResultatRH> {
     const decls = await db.declaration.findMany({ where: { userId: d.id, moment: { not: "RECUP" } } });
     for (const x of decls) {
       if (!x.heure) continue;
-      const minutes = ecart(x.moment as "MATIN" | "MIDI" | "SOIR", x.heure, d, params.arrondiMinutes);
+      const minutes = ecart(x.moment as "MATIN" | "MIDI" | "SOIR", x.heure, d, params);
       if (minutes !== x.minutes) await db.declaration.update({ where: { id: x.id }, data: { minutes } });
     }
   }
   toutRevalider();
-  return { ok: true, message: horairesChanges ? `${d.prenom} : horaires mis à jour, déclarations recalculées` : `${d.prenom} : enregistré` };
+  return {
+    ok: true,
+    message: horairesChanges ? `${d.prenom} : horaires mis à jour, déclarations recalculées` : `${d.prenom} : enregistré`,
+  };
 }
 
 function motDePasseProvisoire(): string {

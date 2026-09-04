@@ -92,5 +92,7 @@ model Parametres {
   /// 1 = 1h sup donne 1h de récup, 1.25 = majoration 25 %
   majoration     Float   @default(1)
   arrondiMinutes Int     @default(15)
+  /// Tolérance : un écart de cette durée ou moins (dans un sens comme dans l'autre) ne compte pas
+  toleranceMinutes Int   @default(15)
   recapVendredi  Boolean @default(true)
 }

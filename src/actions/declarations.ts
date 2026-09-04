@@ -4,7 +4,17 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { utilisateurCourant } from "@/lib/auth";
-import { dureesRecup, ecart, maintenantParis, momentCourant, type MomentJour } from "@/lib/calcul";
+import {
+  dansTolerance,
+  dureesRecup,
+  ecart,
+  hm,
+  maintenantParis,
+  momentCourant,
+  type MomentJour,
+  type Refs,
+  type Regles,
+} from "@/lib/calcul";
 import { moisClos, parametres } from "@/lib/donnees";
 
 export type Resultat = { ok: true; message: string; id?: string; retiree?: boolean } | { ok: false; erreur: string };
@@ -29,6 +39,13 @@ function vide(s: string | null | undefined) {
   return s && s.length ? s : null;
 }
 
+/** Message quand l'heure déclarée ne donne rien : pile dans l'horaire, ou dans la tolérance. */
+function messageDansHoraire(moment: MomentJour, heure: string, refs: Refs, regles: Regles): string {
+  return dansTolerance(moment, heure, refs, regles)
+    ? `${hm(heure)} : dans la tolérance de ${regles.toleranceMinutes} min, rien à compter`
+    : "Dans l’horaire, rien à déclarer";
+}
+
 async function verifierMoisOuvert(date: string): Promise<string | null> {
   if (await moisClos(date.slice(0, 7))) return "Ce mois est clôturé : plus de modification possible, vois avec la RH.";
   return null;
@@ -46,8 +63,8 @@ export async function declarerMaintenant(momentDemande?: MomentJour): Promise<Re
   if (existante) return { ok: false, erreur: "Déjà déclaré pour ce moment : touche la ligne pour modifier." };
 
   const params = await parametres();
-  const minutes = ecart(moment, heure, user, params.arrondiMinutes);
-  if (minutes === 0) return { ok: true, message: "Dans l’horaire, rien à déclarer" };
+  const minutes = ecart(moment, heure, user, params);
+  if (minutes === 0) return { ok: true, message: messageDansHoraire(moment, heure, user, params) };
 
   const d = await db.declaration.create({
     data: { userId: user.id, date, moment, heure, minutes, creeLe: date },
@@ -68,7 +85,7 @@ export async function enregistrerDeclaration(entree: z.input<typeof schemaDeclar
   if (bloque) return { ok: false, erreur: bloque };
 
   const params = await parametres();
-  const minutes = ecart(moment, heure, user, params.arrondiMinutes);
+  const minutes = ecart(moment, heure, user, params);
   const existante = id
     ? await db.declaration.findFirst({ where: { id, userId: user.id } })
     : await db.declaration.findUnique({ where: { userId_date_moment: { userId: user.id, date, moment } } });
@@ -77,9 +94,9 @@ export async function enregistrerDeclaration(entree: z.input<typeof schemaDeclar
     if (existante) {
       await db.declaration.delete({ where: { id: existante.id } });
       revalidatePath("/");
-      return { ok: true, message: "Dans l’horaire : déclaration retirée", retiree: true };
+      return { ok: true, message: `${messageDansHoraire(moment, heure, user, params)} : déclaration retirée`, retiree: true };
     }
-    return { ok: true, message: "Dans l’horaire, rien à déclarer", retiree: true };
+    return { ok: true, message: messageDansHoraire(moment, heure, user, params), retiree: true };
   }
 
   const champs = {
