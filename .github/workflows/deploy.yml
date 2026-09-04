@@ -66,17 +66,29 @@ jobs:
           done
           [ "$manque" = 0 ] || exit 1
           case "$VPS_SSH_KEY" in *"BEGIN "*"PRIVATE KEY"*) ;; *) echo "::error::VPS_SSH_KEY ne ressemble pas à une clé privée : colle tout le fichier, lignes BEGIN et END comprises"; exit 1 ;; esac
-          echo "Cible : $VPS_USER@$VPS_HOST:$VPS_PORT, dossier $DOSSIER"
+          # espaces et retours à la ligne collés par accident dans les secrets
+          hote=$(printf '%s' "$VPS_HOST" | tr -d '[:space:]')
+          util=$(printf '%s' "$VPS_USER" | tr -d '[:space:]')
+          port=$(printf '%s' "$VPS_PORT" | tr -d '[:space:]')
+          echo "Longueurs reçues : hôte ${#VPS_HOST} → ${#hote}, utilisateur ${#VPS_USER} → ${#util}, port ${#VPS_PORT} → ${#port}"
+          [ "${#VPS_HOST}" = "${#hote}" ] && [ "${#VPS_USER}" = "${#util}" ] || echo "::warning::Un secret contenait des espaces ou un retour à la ligne : ils ont été retirés, pense à recoller la valeur proprement"
+          case "$port" in ''|*[!0-9]*) echo "::error::VPS_PORT n'est pas un nombre"; exit 1 ;; esac
+          {
+            echo "VPS_HOST=$hote"
+            echo "VPS_USER=$util"
+            echo "VPS_PORT=$port"
+          } >> "$GITHUB_ENV"
       - name: Clé SSH
         run: |
           mkdir -p ~/.ssh && chmod 700 ~/.ssh
           printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/vps && chmod 600 ~/.ssh/vps
           ssh-keygen -y -f ~/.ssh/vps > ~/.ssh/vps.pub || { echo "::error::Clé privée illisible (VPS_SSH_KEY)"; exit 1; }
-          echo "Empreinte de la clé utilisée (à comparer avec « ssh-keygen -lf /home/deploy/.ssh/github_actions.pub » sur le VPS) :"
+          echo "Empreinte de la clé utilisée (« ssh-keygen -lf /home/deploy/.ssh/github_actions.pub » sur le VPS) :"
           ssh-keygen -lf ~/.ssh/vps.pub
       - name: Mise en ligne
+        id: ssh
         run: |
-          ssh -i ~/.ssh/vps -p "$VPS_PORT" -o StrictHostKeyChecking=accept-new -o ConnectTimeout=25 -o BatchMode=yes "$VPS_USER@$VPS_HOST" "DOSSIER='$DOSSIER' bash -s" <<'EOF'
+          ssh -i ~/.ssh/vps -p "$VPS_PORT" -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new -o ConnectTimeout=25 -o BatchMode=yes "$VPS_USER@$VPS_HOST" "DOSSIER='$DOSSIER' bash -s" <<'EOF'
           set -e
           cd "$DOSSIER"
           docker compose pull app
@@ -84,3 +96,11 @@ jobs:
           docker image prune -f >/dev/null
           docker compose ps
           EOF
+      - name: Diagnostic (si échec)
+        if: failure() && steps.ssh.outcome == 'failure'
+        run: |
+          echo "Empreinte de la machine jointe (« sudo ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub » sur le VPS) :"
+          ssh-keygen -lf ~/.ssh/known_hosts 2>/dev/null || echo "(inconnue)"
+          echo "Utilisateur demandé : [$VPS_USER] · port : [$VPS_PORT]"
+          echo "--- négociation SSH ---"
+          ssh -vv -i ~/.ssh/vps -p "$VPS_PORT" -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new -o ConnectTimeout=25 -o BatchMode=yes "$VPS_USER@$VPS_HOST" true 2>&1 | grep -viE "debug2: (kex|mac|compress|cipher|host key algorithms)" | tail -40 || true
