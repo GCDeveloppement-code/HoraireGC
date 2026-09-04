@@ -38,41 +38,61 @@ export function FormulaireRegles({
         lancer(() => majParametres(new FormData(e.currentTarget)));
       }}
     >
-      <div className="prow">
-        <span className="k">Majoration des heures sup</span>
-        <select name="majoration" defaultValue={String(majoration)}>
-          <option value="1">aucune : 1h sup = 1h de récup</option>
-          <option value="1.25">25 % : 1h sup = 1h15 de récup</option>
-          <option value="1.5">50 % : 1h sup = 1h30 de récup</option>
-        </select>
-      </div>
-      <div className="prow">
-        <span className="k">Tolérance avant de compter</span>
-        <select name="toleranceMinutes" defaultValue={String(toleranceMinutes)}>
-          <option value="0">aucune : tout écart compte</option>
-          <option value="5">5 minutes</option>
-          <option value="10">10 minutes (9h10, 17h40 ne comptent pas)</option>
-          <option value="15">15 minutes (9h15, 17h45 ne comptent pas)</option>
-          <option value="20">20 minutes</option>
-          <option value="30">30 minutes</option>
-        </select>
-      </div>
-      <div className="prow">
-        <span className="k">Arrondi des écarts</span>
-        <select name="arrondiMinutes" defaultValue={String(arrondiMinutes)}>
-          <option value="5">aux 5 minutes</option>
-          <option value="10">aux 10 minutes</option>
-          <option value="15">au quart d’heure le plus proche</option>
-          <option value="30">à la demi-heure</option>
-        </select>
-      </div>
-      <div className="prow" style={{ justifyContent: "flex-end" }}>
+      <div className="reglages">
+        <label className="champ">
+          <span>Majoration des heures sup</span>
+          <select name="majoration" defaultValue={String(majoration)}>
+            <option value="1">aucune : 1h sup = 1h de récup</option>
+            <option value="1.25">25 % : 1h sup = 1h15 de récup</option>
+            <option value="1.5">50 % : 1h sup = 1h30 de récup</option>
+          </select>
+        </label>
+        <label className="champ">
+          <span>Tolérance avant de compter</span>
+          <select name="toleranceMinutes" defaultValue={String(toleranceMinutes)}>
+            <option value="0">aucune</option>
+            <option value="5">5 minutes</option>
+            <option value="10">10 minutes</option>
+            <option value="15">15 minutes</option>
+            <option value="20">20 minutes</option>
+            <option value="30">30 minutes</option>
+          </select>
+        </label>
+        <label className="champ">
+          <span>Arrondi des écarts</span>
+          <select name="arrondiMinutes" defaultValue={String(arrondiMinutes)}>
+            <option value="5">5 minutes</option>
+            <option value="10">10 minutes</option>
+            <option value="15">quart d’heure</option>
+            <option value="30">demi-heure</option>
+          </select>
+        </label>
         <button className="rbtn brand" type="submit" disabled={enCours}>
-          Enregistrer les règles
+          Enregistrer
         </button>
       </div>
       <ToastRH message={message} effacer={() => setMessage(null)} />
     </form>
+  );
+}
+
+/** Heure au format 24 h : un champ texte court, identique sur tous les navigateurs.
+ *  Le champ natif type="time" bascule en 12 h selon la langue du navigateur, ce qui tronque
+ *  l'affichage et prête à confusion entre 5h30 et 17h30. */
+function ChampHeure({ form, name, valeur, label }: { form: string; name: string; valeur: string; label: string }) {
+  return (
+    <input
+      className="field heure"
+      form={form}
+      name={name}
+      defaultValue={valeur}
+      aria-label={label}
+      inputMode="numeric"
+      maxLength={5}
+      pattern="([01][0-9]|2[0-3]):[0-5][0-9]"
+      title="Heure au format 24 h, par exemple 09:00 ou 17:30"
+      placeholder="09:00"
+    />
   );
 }
 
@@ -108,59 +128,30 @@ export function LigneUtilisateur({ u, soldeActuel, estMoi }: { u: UtilisateurFor
           >
             <input type="hidden" name="id" value={u.id} />
           </form>
-          <input className="field" form={idForm} name="prenom" defaultValue={u.prenom} style={{ width: 96 }} aria-label="Prénom" />
-          <input
-            className="field"
-            form={idForm}
-            name="nom"
-            defaultValue={u.nom}
-            placeholder="Nom"
-            style={{ width: 96, marginTop: 4 }}
-            aria-label="Nom"
-          />
+          <div className="duo">
+            <input className="field" form={idForm} name="prenom" defaultValue={u.prenom} aria-label="Prénom" />
+            <input className="field" form={idForm} name="nom" defaultValue={u.nom} placeholder="Nom" aria-label="Nom" />
+          </div>
         </td>
         <td>
-          <input
-            className="field"
-            form={idForm}
-            name="email"
-            type="email"
-            defaultValue={u.email}
-            style={{ width: 190 }}
-            aria-label="Email"
-          />
+          <input className="field large" form={idForm} name="email" type="email" defaultValue={u.email} aria-label="Email" />
         </td>
         <td>
-          <input
-            className="field"
-            form={idForm}
-            name="equipe"
-            defaultValue={u.equipe}
-            placeholder="Équipe"
-            style={{ width: 120 }}
-            aria-label="Équipe"
-          />
-          <input
-            className="field"
-            form={idForm}
-            name="poste"
-            defaultValue={u.poste}
-            placeholder="Poste"
-            style={{ width: 120, marginTop: 4 }}
-            aria-label="Poste"
-          />
+          <div className="duo">
+            <input className="field" form={idForm} name="equipe" defaultValue={u.equipe} placeholder="Équipe" aria-label="Équipe" />
+            <input className="field" form={idForm} name="poste" defaultValue={u.poste} placeholder="Poste" aria-label="Poste" />
+          </div>
         </td>
         <td>
-          <input className="field" form={idForm} type="time" name="refMatin" defaultValue={u.refMatin} aria-label="Début" />
-        </td>
-        <td>
-          <input className="field" form={idForm} type="time" name="refPause" defaultValue={u.refPause} aria-label="Pause" />
-        </td>
-        <td>
-          <input className="field" form={idForm} type="time" name="refMidi" defaultValue={u.refMidi} aria-label="Reprise" />
-        </td>
-        <td>
-          <input className="field" form={idForm} type="time" name="refSoir" defaultValue={u.refSoir} aria-label="Fin" />
+          <div className="horaires">
+            <ChampHeure form={idForm} name="refMatin" valeur={u.refMatin} label="Arrivée le matin" />
+            <span>–</span>
+            <ChampHeure form={idForm} name="refPause" valeur={u.refPause} label="Pause du midi" />
+            <em>·</em>
+            <ChampHeure form={idForm} name="refMidi" valeur={u.refMidi} label="Reprise" />
+            <span>–</span>
+            <ChampHeure form={idForm} name="refSoir" valeur={u.refSoir} label="Fin de journée" />
+          </div>
         </td>
         <td className="r">
           <input className="field init" form={idForm} name="soldeInitial" defaultValue={u.soldeInitial} aria-label="Solde de départ" />
@@ -177,20 +168,30 @@ export function LigneUtilisateur({ u, soldeActuel, estMoi }: { u: UtilisateurFor
           <input type="checkbox" form={idForm} name="actif" defaultChecked={u.actif} disabled={estMoi} aria-label="Actif" />
           {estMoi && <input type="hidden" form={idForm} name="actif" value="on" />}
         </td>
-        <td style={{ whiteSpace: "nowrap" }}>
+        <td className="actions">
           <button className="rbtn-sm" type="submit" form={idForm} disabled={enCours}>
             Enregistrer
-          </button>{" "}
-          <button className="rbtn-sm ghost" type="button" disabled={enCours} onClick={() => lancer(() => reinitialiserMotDePasse(u.id))}>
-            Mot de passe
+          </button>
+          <button
+            className="rbtn-sm ghost cle"
+            type="button"
+            disabled={enCours}
+            title="Réinitialiser le mot de passe"
+            aria-label={`Réinitialiser le mot de passe de ${u.prenom}`}
+            onClick={() => lancer(() => reinitialiserMotDePasse(u.id))}
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="8" cy="15" r="4" />
+              <path d="M10.8 12.2 20 3" />
+              <path d="M17 6l2.5 2.5" />
+            </svg>
           </button>
         </td>
       </tr>
       {secret && (
         <tr>
-          <td colSpan={12} style={{ background: "var(--straw)", color: "var(--straw-ink)" }}>
-            Mot de passe provisoire pour {u.prenom} : <strong className="tnum">{secret}</strong> (à lui transmettre, il devra le changer à
-            la connexion){" "}
+          <td colSpan={9} style={{ background: "var(--straw)", color: "var(--straw-ink)" }}>
+            Mot de passe provisoire pour {u.prenom} : <strong className="tnum">{secret}</strong>{" "}
             <button className="rbtn-sm ghost" type="button" onClick={() => setSecret(null)}>
               OK
             </button>
@@ -215,17 +216,17 @@ export function FormulaireCreation({ equipes }: { equipes: string[] }) {
           return r;
         });
       }}
-      style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}
+      className="creation"
     >
-      <input className="field" name="prenom" placeholder="Prénom" required style={{ width: 130 }} />
-      <input className="field" name="email" type="email" placeholder="email@…" required style={{ width: 220 }} />
-      <input className="field" name="equipe" placeholder="Équipe" list="equipes" style={{ width: 140 }} />
+      <input className="field" name="prenom" placeholder="Prénom" required />
+      <input className="field large" name="email" type="email" placeholder="email@…" required />
+      <input className="field" name="equipe" placeholder="Équipe" list="equipes" />
       <datalist id="equipes">
         {equipes.map((e) => (
           <option key={e} value={e} />
         ))}
       </datalist>
-      <input className="field" name="poste" placeholder="Poste" style={{ width: 160 }} />
+      <input className="field" name="poste" placeholder="Poste" />
       <select className="field" name="role" defaultValue="SALARIE">
         <option value="SALARIE">Salarié</option>
         <option value="RH">RH</option>
@@ -234,7 +235,7 @@ export function FormulaireCreation({ equipes }: { equipes: string[] }) {
         Créer le compte
       </button>
       {secret && (
-        <div style={{ width: "100%", background: "var(--straw)", color: "var(--straw-ink)", borderRadius: 12, padding: "8px 12px" }}>
+        <div className="secret">
           Mot de passe provisoire : <strong className="tnum">{secret}</strong>{" "}
           <button className="rbtn-sm ghost" type="button" onClick={() => setSecret(null)}>
             OK

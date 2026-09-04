@@ -33,9 +33,7 @@ export function EnteteRH({
               </Link>
             )}
           </h1>
-          <div className="muted">
-            {clos ? "Mois clôturé : les compteurs sont figés, l’export est définitif pour la paie." : "Mois ouvert : les salariés peuvent encore déclarer et corriger."}
-          </div>
+          <div className={`etat${clos ? " clos" : ""}`}>{clos ? "Mois clôturé" : "Mois ouvert"}</div>
         </div>
         <div className="rh-actions">
           <a className="rbtn" href={`/rh/export?mois=${mois}`}>

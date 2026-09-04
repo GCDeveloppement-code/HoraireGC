@@ -32,16 +32,16 @@
   --ink: #2a2233;
   --ink2: #6b6078;
   --ink3: #9a90a6;
-  --glass: rgba(255, 255, 255, 0.42);
-  --glass-b: rgba(255, 255, 255, 0.7);
-  --row: rgba(42, 34, 51, 0.09);
-  --row-today: rgba(255, 255, 255, 0.35);
-  --hero-bg: rgba(255, 255, 255, 0.42);
-  --hero-b: rgba(255, 255, 255, 0.7);
+  --glass: rgba(255, 255, 255, 0.2);
+  --glass-b: rgba(255, 255, 255, 0.5);
+  --row: rgba(42, 34, 51, 0.08);
+  --row-today: rgba(255, 255, 255, 0.22);
+  --hero-bg: rgba(255, 255, 255, 0.2);
+  --hero-b: rgba(255, 255, 255, 0.5);
   --hero-ink: #2a2233;
   --hero-sub: #6b6078;
   --hero-num: #ad614b;
-  --pill-bg: rgba(255, 255, 255, 0.55);
+  --pill-bg: rgba(255, 255, 255, 0.34);
   --pill-ink: #2a2233;
   --cta-bg: #8e7cf0;
   --cta-ink: #ffffff;
@@ -58,7 +58,7 @@
   --toast-bg: #2a2233;
   --toast-ink: #fff3ec;
   --toast-act: #ffc978;
-  --sheet-bg: rgba(255, 255, 255, 0.92);
+  --sheet-bg: rgba(255, 255, 255, 0.86);
   --sheet-field: rgba(42, 34, 51, 0.06);
   --seg-on: #ffffff;
   --scheme: light;
@@ -67,19 +67,19 @@
   --verre-haut: rgba(255, 255, 255, 0.92);
   --verre-bas: rgba(255, 255, 255, 0.3);
   --verre-lat: rgba(255, 255, 255, 0.5);
-  --verre-reflet: rgba(255, 255, 255, 0.34);
+  --verre-reflet: rgba(255, 255, 255, 0.22);
   --verre-ombre: 0 18px 36px -20px rgba(70, 50, 90, 0.4);
 }
 [data-ambiance="ciel"] {
   --ink: #1e2a3a;
   --ink2: #5c6b7e;
   --ink3: #8a98aa;
-  --glass: rgba(255, 255, 255, 0.42);
-  --glass-b: rgba(255, 255, 255, 0.7);
-  --row: rgba(30, 42, 58, 0.09);
-  --row-today: rgba(255, 255, 255, 0.35);
-  --hero-bg: rgba(93, 123, 255, 0.82);
-  --hero-b: rgba(255, 255, 255, 0.35);
+  --glass: rgba(255, 255, 255, 0.2);
+  --glass-b: rgba(255, 255, 255, 0.5);
+  --row: rgba(30, 42, 58, 0.08);
+  --row-today: rgba(255, 255, 255, 0.22);
+  --hero-bg: rgba(93, 123, 255, 0.5);
+  --hero-b: rgba(255, 255, 255, 0.4);
   --hero-ink: #ffffff;
   --hero-sub: rgba(255, 255, 255, 0.85);
   --hero-num: #ffffff;
@@ -100,7 +100,7 @@
   --toast-bg: #1e2a3a;
   --toast-ink: #eef3fa;
   --toast-act: #ffc978;
-  --sheet-bg: rgba(255, 255, 255, 0.92);
+  --sheet-bg: rgba(255, 255, 255, 0.86);
   --sheet-field: rgba(30, 42, 58, 0.06);
   --seg-on: #ffffff;
   --scheme: light;
@@ -109,19 +109,19 @@
   --verre-haut: rgba(255, 255, 255, 0.95);
   --verre-bas: rgba(255, 255, 255, 0.32);
   --verre-lat: rgba(255, 255, 255, 0.52);
-  --verre-reflet: rgba(255, 255, 255, 0.36);
+  --verre-reflet: rgba(255, 255, 255, 0.24);
   --verre-ombre: 0 18px 36px -20px rgba(40, 70, 120, 0.34);
 }
 [data-ambiance="soir"] {
   --ink: #ffffff;
   --ink2: rgba(255, 255, 255, 0.8);
   --ink3: rgba(255, 255, 255, 0.62);
-  --glass: rgba(255, 255, 255, 0.14);
-  --glass-b: rgba(255, 255, 255, 0.26);
-  --row: rgba(255, 255, 255, 0.16);
-  --row-today: rgba(255, 255, 255, 0.09);
-  --hero-bg: rgba(255, 255, 255, 0.14);
-  --hero-b: rgba(255, 255, 255, 0.26);
+  --glass: rgba(255, 255, 255, 0.08);
+  --glass-b: rgba(255, 255, 255, 0.24);
+  --row: rgba(255, 255, 255, 0.14);
+  --row-today: rgba(255, 255, 255, 0.07);
+  --hero-bg: rgba(255, 255, 255, 0.08);
+  --hero-b: rgba(255, 255, 255, 0.24);
   --hero-ink: #ffffff;
   --hero-sub: rgba(255, 255, 255, 0.8);
   --hero-num: #ffffff;
@@ -142,7 +142,7 @@
   --toast-bg: rgba(255, 255, 255, 0.94);
   --toast-ink: #1e2a3a;
   --toast-act: #4156b2;
-  --sheet-bg: rgba(30, 34, 66, 0.95);
+  --sheet-bg: rgba(30, 34, 66, 0.88);
   --sheet-field: rgba(255, 255, 255, 0.1);
   --seg-on: rgba(255, 255, 255, 0.22);
   --scheme: dark;
@@ -151,7 +151,7 @@
   --verre-haut: rgba(255, 255, 255, 0.46);
   --verre-bas: rgba(255, 255, 255, 0.1);
   --verre-lat: rgba(255, 255, 255, 0.2);
-  --verre-reflet: rgba(255, 255, 255, 0.14);
+  --verre-reflet: rgba(255, 255, 255, 0.1);
   --verre-ombre: 0 20px 44px -22px rgba(6, 8, 30, 0.6);
 }
 
@@ -945,8 +945,8 @@ textarea {
 .sheet {
   background-image: linear-gradient(174deg, var(--verre-reflet) 0%, rgba(255, 255, 255, 0) 62%);
   background-repeat: no-repeat;
-  backdrop-filter: blur(22px) saturate(178%);
-  -webkit-backdrop-filter: blur(22px) saturate(178%);
+  backdrop-filter: blur(13px) saturate(190%);
+  -webkit-backdrop-filter: blur(13px) saturate(190%);
   box-shadow:
     inset 0 1px 0 var(--verre-haut),
     inset 0 -1px 0 var(--verre-bas),
@@ -1010,7 +1010,7 @@ textarea {
   color: var(--pg-ink);
 }
 .rh {
-  max-width: 1180px;
+  max-width: 1440px;
   margin: 0 auto;
   padding: 22px 26px 70px;
   position: relative;
@@ -1313,6 +1313,116 @@ td.bal {
 .prow .k {
   color: var(--pg-ink2);
 }
+/* ---------- Vue RH : réglages et tableau des personnes ---------- */
+.rh-grille {
+  display: grid;
+  gap: 18px;
+}
+.card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.card-head h2 {
+  margin-bottom: 0;
+}
+.compte {
+  font-size: 13px;
+  color: var(--pg-ink3);
+  white-space: nowrap;
+}
+/* Trois réglages en ligne, le libellé au-dessus du champ, le bouton au bout. */
+.reglages {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px 16px;
+  align-items: end;
+  margin-top: 12px;
+}
+.champ {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+.champ > span {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--pg-ink2);
+}
+.champ select,
+.champ input {
+  width: 100%;
+}
+.reglages > .rbtn {
+  justify-self: start;
+}
+/* Le tableau vit déjà dans une carte : pas de seconde carte autour. */
+.table-wrap.nu {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+.duo {
+  display: flex;
+  gap: 6px;
+}
+.duo .field {
+  width: 100%;
+  min-width: 0;
+}
+.horaires {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+.horaires span,
+.horaires em {
+  color: var(--pg-ink3);
+  font-style: normal;
+}
+.horaires em {
+  padding: 0 3px;
+}
+.creation {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 12px;
+}
+.creation .field {
+  width: 150px;
+}
+.creation .field.large {
+  width: 230px;
+}
+.secret {
+  width: 100%;
+  background: var(--straw);
+  color: var(--straw-ink);
+  border-radius: 12px;
+  padding: 8px 12px;
+  font-size: 14px;
+}
+.etat {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--mint-soft);
+  color: var(--mint);
+}
+.etat.clos {
+  background: var(--straw);
+  color: var(--straw-ink);
+}
+
 .ptable {
   width: 100%;
   min-width: 0;
@@ -1320,10 +1430,48 @@ td.bal {
 }
 .ptable td,
 .ptable th {
-  padding: 8px 8px;
+  padding: 9px 10px;
 }
-.ptable td:first-child {
+.ptable td:first-child,
+.ptable th:first-child {
   padding-left: 0;
+}
+.ptable td:last-child,
+.ptable th:last-child {
+  padding-right: 0;
+}
+.ptable .field {
+  width: 82px;
+}
+.ptable .field.large {
+  width: 158px;
+}
+.ptable .field.init {
+  width: 68px;
+}
+.ptable .field.heure {
+  width: 58px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+.ptable .field.heure:invalid {
+  border-color: var(--danger);
+}
+.ptable td.actions {
+  white-space: nowrap;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.rbtn-sm.cle {
+  padding: 6px;
+  line-height: 0;
+}
+.rbtn-sm.cle svg {
+  width: 16px;
+  height: 16px;
 }
 .kv {
   display: grid;
