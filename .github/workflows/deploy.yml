@@ -51,17 +51,34 @@ jobs:
     if: github.ref_name == 'main' || vars.STAGING == 'true'
     runs-on: ubuntu-latest
     environment: ${{ github.ref_name == 'main' && 'prod' || 'staging' }}
+    env:
+      VPS_HOST: ${{ secrets.VPS_HOST }}
+      VPS_PORT: ${{ secrets.VPS_PORT || 22 }}
+      VPS_USER: ${{ secrets.VPS_USER }}
+      VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+      DOSSIER: /opt/horairegc${{ github.ref_name == 'main' && '' || '-staging' }}
     steps:
-      - uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          port: ${{ secrets.VPS_PORT || 22 }}
-          script: |
-            set -e
-            cd "/opt/horairegc${{ github.ref_name == 'main' && '' || '-staging' }}"
-            docker compose pull app
-            docker compose up -d --remove-orphans
-            docker image prune -f >/dev/null
-            docker compose ps
+      - name: Vérification des secrets
+        run: |
+          manque=0
+          for v in VPS_HOST VPS_USER VPS_SSH_KEY; do
+            if [ -z "${!v}" ]; then echo "::error::Secret $v manquant (Settings → Secrets and variables → Actions)"; manque=1; fi
+          done
+          [ "$manque" = 0 ] || exit 1
+          case "$VPS_SSH_KEY" in *"BEGIN "*"PRIVATE KEY"*) ;; *) echo "::error::VPS_SSH_KEY ne ressemble pas à une clé privée : colle tout le fichier, lignes BEGIN et END comprises"; exit 1 ;; esac
+          echo "Cible : $VPS_USER@$VPS_HOST:$VPS_PORT, dossier $DOSSIER"
+      - name: Clé SSH
+        run: |
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/vps && chmod 600 ~/.ssh/vps
+          ssh-keygen -y -f ~/.ssh/vps >/dev/null || { echo "::error::Clé privée illisible (VPS_SSH_KEY)"; exit 1; }
+      - name: Mise en ligne
+        run: |
+          ssh -i ~/.ssh/vps -p "$VPS_PORT" -o StrictHostKeyChecking=accept-new -o ConnectTimeout=25 -o BatchMode=yes "$VPS_USER@$VPS_HOST" "DOSSIER='$DOSSIER' bash -s" <<'EOF'
+          set -e
+          cd "$DOSSIER"
+          docker compose pull app
+          docker compose up -d --remove-orphans
+          docker image prune -f >/dev/null
+          docker compose ps
+          EOF
