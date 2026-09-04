@@ -55,3 +55,21 @@ export const IconeInfo = (
     <path d="M12 11v5M12 8h.01" />
   </svg>
 );
+
+/**
+ * Filtre de réfraction du verre : une turbulence douce sert de carte de déplacement,
+ * appliquée en bordure des cartes (voir .hero::after et .glass::after). Le ciel derrière
+ * étant un dégradé, la déformation se lit comme une tranche de verre, jamais comme du flou.
+ * Les navigateurs qui ignorent url() dans backdrop-filter n'affichent simplement rien de plus.
+ */
+export function FiltresVerre() {
+  return (
+    <svg className="verre-filtres" aria-hidden="true" focusable="false">
+      <filter id="verre-onde" x="-20%" y="-20%" width="140%" height="140%" colorInterpolationFilters="sRGB">
+        <feTurbulence type="fractalNoise" baseFrequency="0.0035 0.006" numOctaves="1" seed="11" result="bruit" />
+        <feGaussianBlur in="bruit" stdDeviation="4" result="doux" />
+        <feDisplacementMap in="SourceGraphic" in2="doux" scale="9" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+    </svg>
+  );
+}

@@ -21,7 +21,7 @@ import {
   type DeclarationCalc,
   type Regles,
 } from "@/lib/calcul";
-import { Chips, Toast, type ToastState } from "./Elements";
+import { Chips, FiltresVerre, Toast, type ToastState } from "./Elements";
 import { FeuilleDeclaration, FeuilleMois, FeuilleRecup, FeuilleReglages, type Feuille } from "./Feuilles";
 
 type Props = {
@@ -135,6 +135,7 @@ export function Accueil({ utilisateur, declarations, toutes, aujourdhui, moisClo
       <div className={`sky sky-aube${amb === "aube" ? " on" : ""}`} />
       <div className={`sky sky-ciel${amb === "ciel" ? " on" : ""}`} />
       <div className={`sky sky-soir${amb === "soir" ? " on" : ""}`} />
+      <FiltresVerre />
 
       <div className="app">
         <header className="app-head">

@@ -64,6 +64,11 @@
   --scheme: light;
   --banner-bg: rgba(255, 231, 184, 0.85);
   --banner-ink: #6e4600;
+  --verre-haut: rgba(255, 255, 255, 0.92);
+  --verre-bas: rgba(255, 255, 255, 0.3);
+  --verre-lat: rgba(255, 255, 255, 0.5);
+  --verre-reflet: rgba(255, 255, 255, 0.34);
+  --verre-ombre: 0 18px 36px -20px rgba(70, 50, 90, 0.4);
 }
 [data-ambiance="ciel"] {
   --ink: #1e2a3a;
@@ -101,6 +106,11 @@
   --scheme: light;
   --banner-bg: rgba(255, 240, 190, 0.85);
   --banner-ink: #6e4e00;
+  --verre-haut: rgba(255, 255, 255, 0.95);
+  --verre-bas: rgba(255, 255, 255, 0.32);
+  --verre-lat: rgba(255, 255, 255, 0.52);
+  --verre-reflet: rgba(255, 255, 255, 0.36);
+  --verre-ombre: 0 18px 36px -20px rgba(40, 70, 120, 0.34);
 }
 [data-ambiance="soir"] {
   --ink: #ffffff;
@@ -138,6 +148,11 @@
   --scheme: dark;
   --banner-bg: rgba(255, 224, 130, 0.2);
   --banner-ink: #ffe9a3;
+  --verre-haut: rgba(255, 255, 255, 0.46);
+  --verre-bas: rgba(255, 255, 255, 0.1);
+  --verre-lat: rgba(255, 255, 255, 0.2);
+  --verre-reflet: rgba(255, 255, 255, 0.14);
+  --verre-ombre: 0 20px 44px -22px rgba(6, 8, 30, 0.6);
 }
 
 * {
@@ -902,6 +917,87 @@ textarea {
 }
 .toast b {
   font-weight: 800;
+}
+
+/* ---------- Verre : épaisseur, reflet et réfraction ----------
+   Les bords intérieurs jouent le rôle de la tranche du verre : une arête claire en haut,
+   plus sourde en bas. Le dégradé de fond ajoute le reflet spéculaire. La réfraction du
+   ciel est un filtre SVG posé sur un anneau en bordure : là où le navigateur ne le
+   comprend pas (iOS), l'anneau ne rend rien et le reste de l'effet tient tout seul. */
+.verre-filtres {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+/* seules les cartes qui portent l'anneau de réfraction ont besoin d'un contexte positionné :
+   la feuille reste en position fixed, ne l'ajoute pas ici. */
+.glass,
+.hero {
+  position: relative;
+}
+.glass,
+.hero,
+.icon-btn,
+.banner,
+.cta.done,
+.sheet {
+  background-image: linear-gradient(174deg, var(--verre-reflet) 0%, rgba(255, 255, 255, 0) 62%);
+  background-repeat: no-repeat;
+  backdrop-filter: blur(22px) saturate(178%);
+  -webkit-backdrop-filter: blur(22px) saturate(178%);
+  box-shadow:
+    inset 0 1px 0 var(--verre-haut),
+    inset 0 -1px 0 var(--verre-bas),
+    inset 1px 0 0 var(--verre-lat),
+    inset -1px 0 0 var(--verre-lat),
+    var(--verre-ombre);
+}
+.sheet {
+  background-image: linear-gradient(174deg, var(--verre-reflet) 0%, rgba(255, 255, 255, 0) 120px);
+  box-shadow:
+    inset 0 1px 0 var(--verre-haut),
+    inset 1px 0 0 var(--verre-lat),
+    inset -1px 0 0 var(--verre-lat),
+    0 -12px 44px rgba(10, 14, 40, 0.24);
+}
+.icon-btn {
+  background-image: linear-gradient(168deg, var(--verre-reflet) 0%, rgba(255, 255, 255, 0) 58%);
+}
+/* Petites pastilles : même tranche de verre, en plus fin. */
+.hero .pill,
+.btn-sm,
+.link.more {
+  box-shadow:
+    inset 0 1px 0 var(--verre-haut),
+    inset 0 -1px 0 var(--verre-bas);
+}
+/* Le gros bouton reste opaque, une simple arête claire suffit à le rendre lustré. */
+.cta:not(.done) {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    0 14px 30px var(--cta-shadow);
+}
+
+/* Anneau de réfraction : seule la bordure déforme le ciel, comme la tranche d'une lentille. */
+.hero::after,
+.glass::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 9px;
+  pointer-events: none;
+  backdrop-filter: url(#verre-onde);
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
 }
 
 /* ---------- Pages claires (connexion, RH) ---------- */
